@@ -316,6 +316,7 @@ df["sentiment"].value_counts().plot(
 )
 ax.set_title("Sentiment Label Distribution")
 ax.set_ylabel("Count")
+ax.bar_label(ax.containers[0], label_type="edge", padding=3)
 plt.tight_layout()
 plt.savefig("outputs/sentiment_distribution.png", dpi=150)
 plt.show()
