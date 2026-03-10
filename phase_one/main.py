@@ -264,7 +264,46 @@ plt.xlabel('Star Rating (Overall)', fontsize=12)
 plt.ylabel('Reviewer ID', fontsize=12)
 
 # Save the plot
-plt.savefig('reviewer_rating_heatmap.png', bbox_inches='tight')
+plt.savefig('outputs/reviewer_rating_heatmap.png', bbox_inches='tight')
+
+# %%
+# Enhancement
+# --- Statistical Justification for Column Selection ---
+
+# Calculate missing value percentages
+missing_percentages = (df.isnull().sum() / len(df)) * 100
+missing_df = missing_percentages.reset_index()
+missing_df.columns = ['Feature', 'Missing_Percentage']
+missing_df = missing_df.sort_values(by='Missing_Percentage', ascending=False)
+
+# Plot: Missing Value Percentages (with labeling)
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(x='Missing_Percentage', y='Feature', data=missing_df, palette='Reds_r', ax=ax)
+ax.set_title("Percentage of Missing Values per Feature")
+ax.set_xlabel("Missing Percentage (%)")
+ax.set_ylabel("Features")
+ax.axvline(50, color='black', linestyle='--', label='50% Missing Threshold')
+
+# Add exact percentage labels to the bars
+for container in ax.containers:
+    ax.bar_label(container, fmt='%.1f%%', padding=3)
+
+plt.legend()
+plt.tight_layout()
+plt.savefig("outputs/missing_values_justification.png", dpi=150)
+plt.show()
+
+# Drop unjustified columns based on the statistics and redundancy
+columns_to_drop = [
+    'style',             # Dropped due to > 98% missing values
+    'image',             # Dropped due to > 63% missing values
+    'unixReviewTime',    # Dropped due to perfect redundancy with 'reviewTime'
+    'reviewerName'       # Dropped due to redundancy with unique 'reviewerID' 
+]
+
+df_cleaned = df.drop(columns=columns_to_drop)
+print(f"Dropped columns: {columns_to_drop}")
+print(f"Remaining columns: {df_cleaned.columns.tolist()}")
 
 # %%
 duplicate_count = df.duplicated(subset=["reviewerID", "asin", "reviewText"]).sum()
@@ -320,45 +359,6 @@ ax.bar_label(ax.containers[0], label_type="edge", padding=3)
 plt.tight_layout()
 plt.savefig("outputs/sentiment_distribution.png", dpi=150)
 plt.show()
-
-# %%
-# Enhancement
-# --- Statistical Justification for Column Selection ---
-
-# Calculate missing value percentages
-missing_percentages = (df.isnull().sum() / len(df)) * 100
-missing_df = missing_percentages.reset_index()
-missing_df.columns = ['Feature', 'Missing_Percentage']
-missing_df = missing_df.sort_values(by='Missing_Percentage', ascending=False)
-
-# Plot: Missing Value Percentages (with labeling)
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(x='Missing_Percentage', y='Feature', data=missing_df, palette='Reds_r', ax=ax)
-ax.set_title("Percentage of Missing Values per Feature")
-ax.set_xlabel("Missing Percentage (%)")
-ax.set_ylabel("Features")
-ax.axvline(50, color='black', linestyle='--', label='50% Missing Threshold')
-
-# Add exact percentage labels to the bars
-for container in ax.containers:
-    ax.bar_label(container, fmt='%.1f%%', padding=3)
-
-plt.legend()
-plt.tight_layout()
-plt.savefig("outputs/missing_values_justification.png", dpi=150)
-plt.show()
-
-# Drop unjustified columns based on the statistics and redundancy
-columns_to_drop = [
-    'style',             # Dropped due to > 98% missing values
-    'image',             # Dropped due to > 63% missing values
-    'unixReviewTime',    # Dropped due to perfect redundancy with 'reviewTime'
-    'reviewerName'       # Dropped due to redundancy with unique 'reviewerID' 
-]
-
-df_cleaned = df.drop(columns=columns_to_drop)
-print(f"Dropped columns: {columns_to_drop}")
-print(f"Remaining columns: {df_cleaned.columns.tolist()}")
 
 # %% [markdown]
 # We choose 'reviewText' as the primary column for sentiment analysis because it contains the full customer opinion.  
