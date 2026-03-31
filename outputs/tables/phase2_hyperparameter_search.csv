@@ -1,0 +1,3 @@
+model,best_cv_f1_weighted,best_params
+LinearSVC,0.8832435401794808,"{'classifier__C': 0.5, 'tfidf__min_df': 1}"
+LogisticRegression,0.8531927296554804,"{'classifier__C': 2.0, 'tfidf__min_df': 1}"

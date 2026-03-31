@@ -1,0 +1,41 @@
+{
+  "source_file": "data\\raw\\Appliances_5.json.gz",
+  "rows": 203,
+  "columns": [
+    "overall",
+    "verified",
+    "reviewTime",
+    "reviewerID",
+    "asin",
+    "style",
+    "reviewerName",
+    "reviewText",
+    "summary",
+    "unixReviewTime",
+    "vote",
+    "image",
+    "text",
+    "label",
+    "review_char_count",
+    "review_word_count"
+  ],
+  "label_mapping": {
+    "1-2": "Negative",
+    "3": "Neutral",
+    "4-5": "Positive"
+  },
+  "rating_distribution": {
+    "1.0": 5,
+    "2.0": 11,
+    "3.0": 9,
+    "4.0": 13,
+    "5.0": 165
+  },
+  "label_distribution": {
+    "Positive": 178,
+    "Negative": 16,
+    "Neutral": 9
+  },
+  "duplicate_policy": "Drop exact duplicates by reviewerID, asin, and reviewText.",
+  "random_state": 42
+}

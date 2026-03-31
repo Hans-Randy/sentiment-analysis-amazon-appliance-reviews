@@ -1,0 +1,10 @@
+label,MultinomialNB_pred,count
+Negative,Negative,1184
+Negative,Neutral,9
+Negative,Positive,410
+Neutral,Negative,141
+Neutral,Neutral,18
+Neutral,Positive,445
+Positive,Negative,222
+Positive,Neutral,43
+Positive,Positive,9528
