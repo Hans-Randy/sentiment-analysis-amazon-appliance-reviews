@@ -1,13 +1,11 @@
+import argparse
 from pathlib import Path
 from typing import cast
 
 import joblib
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC
 
 from src.config import (
     DEFAULT_RANDOM_STATE,
@@ -21,58 +19,56 @@ from src.evaluate import (
     metrics_row,
     save_confusion_matrix,
 )
-from src.features import build_tfidf_vectorizer
 from src.lexicon_baselines import run_lexicon_models
+from src.model_registry import (
+    MODEL_SPECS,
+    build_selected_pipelines,
+    default_model_names,
+    experimental_model_names,
+    resolve_model_names,
+)
 from src.prepare_phase2 import build_lexicon_comparison_subset, prepare_phase2_artifacts
 from src.utils import ensure_directories, write_json
 
 
-def build_model_pipelines() -> dict[str, Pipeline]:
-    return {
-        "LogisticRegression": Pipeline(
-            steps=[
-                ("tfidf", build_tfidf_vectorizer().set_params(min_df=1)),
-                (
-                    "classifier",
-                    LogisticRegression(
-                        max_iter=1000,
-                        C=2.0,
-                        class_weight="balanced",
-                        random_state=DEFAULT_RANDOM_STATE,
-                    ),
-                ),
-            ]
-        ),
-        "LinearSVC": Pipeline(
-            steps=[
-                ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
-                (
-                    "classifier",
-                    LinearSVC(
-                        C=0.5,
-                        class_weight="balanced",
-                        random_state=DEFAULT_RANDOM_STATE,
-                    ),
-                ),
-            ]
-        ),
-        "MultinomialNB": Pipeline(
-            steps=[
-                ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
-                ("classifier", MultinomialNB(alpha=0.1)),
-            ]
-        ),
-    }
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Train Phase 2 sentiment models.")
+    parser.add_argument(
+        "--models",
+        nargs="+",
+        help="Model CLI names to train, for example: logistic_regression svm multinomial_nb mlp",
+    )
+    parser.add_argument(
+        "--include-experimental",
+        action="store_true",
+        help="Train default models plus experimental models.",
+    )
+    parser.add_argument(
+        "--skip-lexicon",
+        action="store_true",
+        help="Skip lexicon comparison step for faster runs.",
+    )
+    return parser.parse_args()
 
 
-def cross_validate_models(train_df: pd.DataFrame) -> pd.DataFrame:
+def selected_cli_names(args: argparse.Namespace) -> list[str]:
+    if args.models:
+        return resolve_model_names(args.models)
+    if args.include_experimental:
+        return default_model_names() + experimental_model_names()
+    return default_model_names()
+
+
+def cross_validate_models(
+    train_df: pd.DataFrame, selected_names: list[str]
+) -> pd.DataFrame:
     rows = []
     splitter = StratifiedKFold(
         n_splits=3, shuffle=True, random_state=DEFAULT_RANDOM_STATE
     )
     train_text = cast(pd.Series, train_df["text"])
     train_label = cast(pd.Series, train_df["label"])
-    for model_name, pipeline in build_model_pipelines().items():
+    for model_name, pipeline in build_selected_pipelines(selected_names).items():
         scores = cross_validate(
             pipeline,
             train_text,
@@ -114,7 +110,7 @@ def build_error_tables(
 
 
 def evaluate_ml_models(
-    train_df: pd.DataFrame, test_df: pd.DataFrame
+    train_df: pd.DataFrame, test_df: pd.DataFrame, selected_names: list[str]
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict, dict[str, Pipeline]]:
     model_dir = Path("outputs") / "models"
     ensure_directories([model_dir])
@@ -127,7 +123,7 @@ def evaluate_ml_models(
     test_text = cast(pd.Series, test_df["text"])
     test_label = cast(pd.Series, test_df["label"])
 
-    for model_name, pipeline in build_model_pipelines().items():
+    for model_name, pipeline in build_selected_pipelines(selected_names).items():
         fitted_pipeline = pipeline.fit(train_text, train_label)
         fitted_models[model_name] = fitted_pipeline
         predictions = pd.Series(fitted_pipeline.predict(test_text), index=test_df.index)
@@ -143,28 +139,28 @@ def evaluate_ml_models(
         prediction_frame["model"] = model_name
         prediction_frames.append(prediction_frame)
 
+        artifact_stem = model_name.lower()
         prediction_frame.to_csv(
-            PREDICTIONS_DIR / f"phase2_{model_name.lower()}_test_predictions.csv",
+            PREDICTIONS_DIR / f"phase2_{artifact_stem}_test_predictions.csv",
             index=False,
         )
-        write_json(metrics, METRICS_DIR / f"phase2_{model_name.lower()}_metrics.json")
+        write_json(metrics, METRICS_DIR / f"phase2_{artifact_stem}_metrics.json")
         save_confusion_matrix(
             test_label,
             predictions,
             f"Phase 2 {model_name} Confusion Matrix",
-            FIGURES_DIR / f"phase2_{model_name.lower()}_confusion_matrix.png",
+            FIGURES_DIR / f"phase2_{artifact_stem}_confusion_matrix.png",
         )
-        joblib.dump(fitted_pipeline, model_dir / f"phase2_{model_name.lower()}.joblib")
+        joblib.dump(fitted_pipeline, model_dir / f"phase2_{artifact_stem}.joblib")
 
         class_distribution, error_table = build_error_tables(
             prediction_frame, prediction_column
         )
         class_distribution.to_csv(
-            TABLES_DIR / f"phase2_{model_name.lower()}_class_distribution.csv",
-            index=False,
+            TABLES_DIR / f"phase2_{artifact_stem}_class_distribution.csv", index=False
         )
         error_table.to_csv(
-            TABLES_DIR / f"phase2_{model_name.lower()}_error_analysis.csv", index=False
+            TABLES_DIR / f"phase2_{artifact_stem}_error_analysis.csv", index=False
         )
 
     return (
@@ -191,7 +187,10 @@ def evaluate_ml_on_subset(
     return pd.DataFrame(rows)
 
 
-def run_ml_pipeline() -> dict:
+def run_ml_pipeline(
+    selected_names: list[str] | None = None, skip_lexicon: bool = False
+) -> dict:
+    resolved_names = resolve_model_names(selected_names)
     ensure_directories([FIGURES_DIR, METRICS_DIR, PREDICTIONS_DIR, TABLES_DIR])
     outputs = prepare_phase2_artifacts()
     development_df = cast(pd.DataFrame, outputs["development_df"])
@@ -207,44 +206,50 @@ def run_ml_pipeline() -> dict:
         ),
     )
 
-    cv_summary_df = cross_validate_models(train_df)
+    cv_summary_df = cross_validate_models(train_df, resolved_names)
     cv_summary_df.to_csv(
         TABLES_DIR / "phase2_cross_validation_summary.csv", index=False
     )
 
     ml_summary_df, ml_predictions_df, ml_metrics, fitted_models = evaluate_ml_models(
-        train_df, test_df
+        train_df, test_df, resolved_names
     )
     ml_summary_df.to_csv(TABLES_DIR / "phase2_ml_model_summary.csv", index=False)
     ml_predictions_df.to_csv(
         PREDICTIONS_DIR / "phase2_ml_all_test_predictions.csv", index=False
     )
 
-    lexicon_subset_df = build_lexicon_comparison_subset(test_df)
-    ml_subset_summary_df = evaluate_ml_on_subset(fitted_models, lexicon_subset_df)
-    lexicon_test_results, _, lexicon_metrics = run_lexicon_models(
-        lexicon_subset_df.reset_index(drop=True)
-    )
-    comparison_df = pd.concat(
-        [
-            ml_subset_summary_df,
-            pd.DataFrame(
-                [
-                    metrics_row("VADER", lexicon_metrics["vader"]),
-                    metrics_row("TextBlob", lexicon_metrics["textblob"]),
-                    metrics_row("SentiWordNet", lexicon_metrics["sentiwordnet"]),
-                ]
-            ),
-        ],
-        ignore_index=True,
-    ).sort_values(by=["f1_weighted", "accuracy"], ascending=False)
-    comparison_df.to_csv(TABLES_DIR / "phase2_model_comparison.csv", index=False)
-    lexicon_test_results.to_csv(
-        PREDICTIONS_DIR / "phase2_test_lexicon_predictions.csv", index=False
-    )
-    lexicon_subset_df.to_csv(
-        PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv", index=False
-    )
+    comparison_df = ml_summary_df.copy()
+    lexicon_subset_size = 0
+    if not skip_lexicon:
+        lexicon_subset_df = build_lexicon_comparison_subset(test_df)
+        lexicon_subset_size = int(len(lexicon_subset_df))
+        ml_subset_summary_df = evaluate_ml_on_subset(fitted_models, lexicon_subset_df)
+        lexicon_test_results, _, lexicon_metrics = run_lexicon_models(
+            lexicon_subset_df.reset_index(drop=True)
+        )
+        comparison_df = pd.concat(
+            [
+                ml_subset_summary_df,
+                pd.DataFrame(
+                    [
+                        metrics_row("VADER", lexicon_metrics["vader"]),
+                        metrics_row("TextBlob", lexicon_metrics["textblob"]),
+                        metrics_row("SentiWordNet", lexicon_metrics["sentiwordnet"]),
+                    ]
+                ),
+            ],
+            ignore_index=True,
+        ).sort_values(by=["f1_weighted", "accuracy"], ascending=False)
+        comparison_df.to_csv(TABLES_DIR / "phase2_model_comparison.csv", index=False)
+        lexicon_test_results.to_csv(
+            PREDICTIONS_DIR / "phase2_test_lexicon_predictions.csv", index=False
+        )
+        lexicon_subset_df.to_csv(
+            PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv", index=False
+        )
+    else:
+        comparison_df.to_csv(TABLES_DIR / "phase2_model_comparison.csv", index=False)
 
     write_json(
         {
@@ -257,14 +262,15 @@ def run_ml_pipeline() -> dict:
             "development_sample_rows": int(len(development_df)),
             "train_rows": int(len(train_df)),
             "test_rows": int(len(test_df)),
-            "lexicon_comparison_subset_rows": int(len(lexicon_subset_df)),
+            "lexicon_comparison_subset_rows": lexicon_subset_size,
             "train_test_split": "70/30",
             "train_test_stratify_field": "overall",
             "random_state": DEFAULT_RANDOM_STATE,
             "label_mapping": profile["label_mapping"],
             "cross_validation_folds": 3,
-            "ml_models": list(build_model_pipelines().keys()),
-            "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates ML and lexicon baselines on the same stratified lexicon comparison subset from the large dataset.",
+            "ml_models": [MODEL_SPECS[name].display_name for name in resolved_names],
+            "selected_model_cli_names": resolved_names,
+            "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates trained ML models and lexicon baselines on the same stratified lexicon comparison subset from the large dataset when lexicon comparison is enabled.",
         },
         METRICS_DIR / "phase2_split_summary.json",
     )
@@ -278,6 +284,9 @@ def run_ml_pipeline() -> dict:
 
 
 if __name__ == "__main__":
-    outputs = run_ml_pipeline()
+    args = parse_args()
+    model_names = selected_cli_names(args)
+    outputs = run_ml_pipeline(model_names, skip_lexicon=args.skip_lexicon)
     print("Phase 2 baseline training complete.")
+    print(f"Trained models: {', '.join(model_names)}")
     print(outputs["comparison"].to_string(index=False))

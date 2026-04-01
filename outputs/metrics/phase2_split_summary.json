@@ -6,7 +6,7 @@
   "development_sample_rows": 60000,
   "train_rows": 42000,
   "test_rows": 18000,
-  "lexicon_comparison_subset_rows": 2000,
+  "lexicon_comparison_subset_rows": 0,
   "train_test_split": "70/30",
   "train_test_stratify_field": "overall",
   "random_state": 42,
@@ -17,9 +17,10 @@
   },
   "cross_validation_folds": 3,
   "ml_models": [
-    "LogisticRegression",
-    "LinearSVC",
-    "MultinomialNB"
+    "MLP"
   ],
-  "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates ML and lexicon baselines on the same stratified lexicon comparison subset from the large dataset."
+  "selected_model_cli_names": [
+    "mlp"
+  ],
+  "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates trained ML models and lexicon baselines on the same stratified lexicon comparison subset from the large dataset when lexicon comparison is enabled."
 }

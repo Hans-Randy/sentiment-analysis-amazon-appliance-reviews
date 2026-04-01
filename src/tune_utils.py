@@ -1,11 +1,10 @@
-from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 import pandas as pd
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
-from sklearn.pipeline import Pipeline
 
 from src.config import DEFAULT_RANDOM_STATE, METRICS_DIR, TABLES_DIR
+from src.model_registry import MODEL_SPECS
 from src.prepare_phase2 import prepare_phase2_artifacts
 from src.utils import ensure_directories, write_json
 
@@ -27,14 +26,16 @@ def load_phase2_splits() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def run_grid_search(
     model_name: str,
-    pipeline: Pipeline,
-    param_grid: dict[str, list[Any]],
 ) -> pd.DataFrame:
     ensure_directories([TABLES_DIR, METRICS_DIR])
+    if model_name not in MODEL_SPECS:
+        raise ValueError(f"Unknown model name: {model_name}")
+
+    model_spec = MODEL_SPECS[model_name]
     train_df, _ = load_phase2_splits()
     search = GridSearchCV(
-        estimator=pipeline,
-        param_grid=param_grid,
+        estimator=model_spec.builder(),
+        param_grid=model_spec.param_grid,
         scoring="f1_weighted",
         cv=StratifiedKFold(n_splits=3, shuffle=True, random_state=DEFAULT_RANDOM_STATE),
         n_jobs=None,
@@ -47,7 +48,7 @@ def run_grid_search(
     results_df.to_csv(TABLES_DIR / f"tuning_{model_name}.csv", index=False)
     write_json(
         {
-            "model": model_name,
+            "model": model_spec.display_name,
             "best_score": float(search.best_score_),
             "best_params": search.best_params_,
         },

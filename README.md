@@ -46,9 +46,12 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── evaluate.py
 │   ├── features.py
 │   ├── lexicon_baselines.py
+│   ├── model_registry.py
 │   ├── phase1_exploration.py
 │   ├── prepare_phase2.py
+│   ├── tune_gradient_boosting.py
 │   ├── tune_logistic_regression.py
+│   ├── tune_mlp.py
 │   ├── tune_multinomial_nb.py
 │   ├── tune_svm.py
 │   ├── tune_utils.py
@@ -114,12 +117,22 @@ Tune Phase 2 models when needed:
 uv run python -m src.tune_logistic_regression
 uv run python -m src.tune_multinomial_nb
 uv run python -m src.tune_svm
+uv run python -m src.tune_mlp
+uv run python -m src.tune_gradient_boosting
 ```
 
 Run the Phase 2 baseline ML experiment with fixed defaults:
 
 ```bash
 uv run python -m src.train_ml
+```
+
+Optional selective training examples:
+
+```bash
+uv run python -m src.train_ml --models logistic_regression svm multinomial_nb
+uv run python -m src.train_ml --models mlp --skip-lexicon
+uv run python -m src.train_ml --include-experimental --skip-lexicon
 ```
 
 Notes:
@@ -129,6 +142,8 @@ Notes:
 - tuning is now separated from training; review the tuning outputs, then manually promote the chosen parameters into `src.train_ml.py`
 - `uv run python -m src.train_ml` trains and evaluates the Phase 2 baselines using the fixed defaults in `src.train_ml.py`
 - Phase 2 now uses a 70/30 train/test split stratified by the raw `overall` rating field
+- `src.model_registry.py` defines default and experimental model pipelines plus their tuning grids
+- experimental models (`mlp`, `gradient_boosting`) are available through selective training and are not part of the default run
 
 Run tests:
 
