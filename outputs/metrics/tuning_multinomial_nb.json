@@ -1,8 +1,8 @@
 {
   "model": "multinomial_nb",
-  "best_score": 0.8746088585808965,
+  "best_score": 0.8730728668583755,
   "best_params": {
     "classifier__alpha": 0.1,
-    "tfidf__min_df": 1
+    "tfidf__min_df": 2
   }
 }

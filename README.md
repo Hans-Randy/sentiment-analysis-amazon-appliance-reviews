@@ -128,6 +128,7 @@ Notes:
 - `uv run python -m src.prepare_phase2` prepares the large Phase 2 dataset from `data/raw/Appliances.json.gz` and saves the large-dataset exploration artifacts
 - tuning is now separated from training; review the tuning outputs, then manually promote the chosen parameters into `src.train_ml.py`
 - `uv run python -m src.train_ml` trains and evaluates the Phase 2 baselines using the fixed defaults in `src.train_ml.py`
+- Phase 2 now uses a 70/30 train/test split stratified by the raw `overall` rating field
 
 Run tests:
 
@@ -150,9 +151,10 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Prepared dataset after duplicate and empty-text filtering: `203` reviews
 - Phase 1 regenerated accuracy: VADER `0.7833`, TextBlob `0.7488`, SentiWordNet `0.7635`
 - Phase 2 source dataset: `data/raw/Appliances.json.gz` with `602,453` rows after empty-text filtering and `591,015` rows after duplicate removal
-- Phase 2 development sample: `60,000` rows; held-out ML test split: `12,000` rows; lexicon comparison subset: `2,000` rows
-- Phase 2 held-out ML accuracy: Linear SVC `0.8817`, Multinomial Naive Bayes `0.8958`, Logistic Regression `0.8249`
-- Phase 2 shared comparison subset accuracy: Linear SVC `0.8805`, Multinomial Naive Bayes `0.8980`, Logistic Regression `0.8400`, VADER `0.7925`, TextBlob `0.7525`, SentiWordNet `0.7435`
+- Phase 2 development sample: `60,000` rows; held-out ML test split: `18,000` rows; lexicon comparison subset: `2,000` rows
+- Phase 2 uses TF-IDF because it is a strong, interpretable sparse baseline for large review corpora and works well with linear models and Naive Bayes
+- Phase 2 held-out ML accuracy: Linear SVC `0.8799`, Multinomial Naive Bayes `0.8932`, Logistic Regression `0.8275`
+- Phase 2 shared comparison subset accuracy: Linear SVC `0.8745`, Multinomial Naive Bayes `0.8915`, Logistic Regression `0.8205`, VADER `0.7870`, TextBlob `0.7225`, SentiWordNet `0.7245`
 - Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 - Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
 
