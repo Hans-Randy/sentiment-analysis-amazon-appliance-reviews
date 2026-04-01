@@ -10,6 +10,7 @@ from src.config import (
     METRICS_DIR,
     PHASE2_DEV_SAMPLE_SIZE,
     PHASE2_LEXICON_COMPARISON_SAMPLE_SIZE,
+    PREDICTIONS_DIR,
 )
 from src.data_prep import (
     load_amazon_reviews,
@@ -19,6 +20,26 @@ from src.data_prep import (
 )
 from src.phase1_exploration import save_dataset_exploration_outputs
 from src.utils import ensure_directories, write_json
+
+
+def build_subset_metadata(df: pd.DataFrame, subset_name: str) -> dict:
+    return {
+        "subset_name": subset_name,
+        "rows": int(len(df)),
+        "overall_distribution": {
+            str(key): int(value)
+            for key, value in df["overall"]
+            .value_counts()
+            .sort_index()
+            .to_dict()
+            .items()
+        },
+        "label_distribution": {
+            key: int(value)
+            for key, value in df["label"].value_counts().to_dict().items()
+        },
+        "text_hash_sum": int(pd.util.hash_pandas_object(df["text"], index=False).sum()),
+    }
 
 
 def build_phase2_dataset() -> tuple[
@@ -88,7 +109,7 @@ def build_lexicon_comparison_subset(test_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def prepare_phase2_artifacts() -> dict:
-    ensure_directories([METRICS_DIR])
+    ensure_directories([METRICS_DIR, PREDICTIONS_DIR])
     raw_prepared_df, prepared_df, profile, saved_paths = build_phase2_dataset()
     save_dataset_exploration_outputs(raw_prepared_df, prepared_df, prefix="phase2")
 
@@ -97,6 +118,32 @@ def prepare_phase2_artifacts() -> dict:
         development_df,
         dataset_name="amazon_appliances_large_phase2_development_sample",
     )
+    _, test_df = cast(
+        tuple[pd.DataFrame, pd.DataFrame],
+        train_test_split(
+            development_df,
+            test_size=0.3,
+            random_state=DEFAULT_RANDOM_STATE,
+            stratify=development_df["overall"],
+        ),
+    )
+    comparison_subset_df = build_lexicon_comparison_subset(test_df)
+    comparison_subset_path = PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv"
+    comparison_subset_df.to_csv(comparison_subset_path, index=False)
+    comparison_subset_metadata = {
+        "source_file": profile["source_file"],
+        "train_test_split": "70/30",
+        "train_test_stratify_field": "overall",
+        "random_state": DEFAULT_RANDOM_STATE,
+        "subset": build_subset_metadata(
+            comparison_subset_df, "phase2_lexicon_comparison_subset"
+        ),
+        "subset_path": str(comparison_subset_path),
+    }
+    write_json(
+        comparison_subset_metadata,
+        METRICS_DIR / "phase2_comparison_subset_metadata.json",
+    )
 
     write_json(
         {
@@ -104,6 +151,7 @@ def prepare_phase2_artifacts() -> dict:
             "development_sample_rows": int(len(development_df)),
             "saved_prepared_paths": [str(path) for path in saved_paths],
             "saved_development_paths": [str(path) for path in development_paths],
+            "saved_comparison_subset_path": str(comparison_subset_path),
         },
         METRICS_DIR / "phase2_prepare_summary.json",
     )
@@ -115,6 +163,9 @@ def prepare_phase2_artifacts() -> dict:
         "profile": profile,
         "saved_paths": saved_paths,
         "development_paths": development_paths,
+        "comparison_subset_df": comparison_subset_df,
+        "comparison_subset_path": comparison_subset_path,
+        "comparison_subset_metadata": comparison_subset_metadata,
     }
 
 

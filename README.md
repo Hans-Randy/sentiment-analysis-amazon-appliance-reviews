@@ -29,7 +29,13 @@ sentiment_analysis_amazon_appliance_reviews/
 ├── notebooks/
 │   ├── old_phase1_lexicon_comparison.ipynb
 │   ├── phase1_lexicon_comparison.ipynb
-│   └── phase2_ml_sentiment.ipynb
+│   ├── phase2_compare_lexicons.ipynb
+│   ├── phase2_compare_models.ipynb
+│   ├── phase2_prepare.ipynb
+│   ├── phase2_train_default_models.ipynb
+│   ├── phase2_train_gradient_boosting.ipynb
+│   ├── phase2_train_mlp.ipynb
+│   └── phase2_workflow_index.ipynb
 ├── outputs/
 │   ├── figures/
 │   ├── metrics/
@@ -45,6 +51,8 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── data_prep.py
 │   ├── evaluate.py
 │   ├── features.py
+│   ├── compare_lexicons.py
+│   ├── compare_models.py
 │   ├── lexicon_baselines.py
 │   ├── model_registry.py
 │   ├── phase1_exploration.py
@@ -121,6 +129,13 @@ uv run python -m src.tune_mlp
 uv run python -m src.tune_gradient_boosting
 ```
 
+Run the shared lexicon comparison and aggregate all results:
+
+```bash
+uv run python -m src.compare_lexicons
+uv run python -m src.compare_models
+```
+
 Run the Phase 2 baseline ML experiment with fixed defaults:
 
 ```bash
@@ -144,6 +159,8 @@ Notes:
 - Phase 2 now uses a 70/30 train/test split stratified by the raw `overall` rating field
 - `src.model_registry.py` defines default and experimental model pipelines plus their tuning grids
 - experimental models (`mlp`, `gradient_boosting`) are available through selective training and are not part of the default run
+- `uv run python -m src.compare_lexicons` evaluates VADER, TextBlob, and SentiWordNet on the saved shared Phase 2 comparison subset
+- `uv run python -m src.compare_models` merges saved ML and lexicon comparison metrics into the final comparison table and figure
 
 Run tests:
 
@@ -172,7 +189,8 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Phase 2 shared comparison subset accuracy: Linear SVC `0.8745`, Multinomial Naive Bayes `0.8915`, Logistic Regression `0.8205`, VADER `0.7870`, TextBlob `0.7225`, SentiWordNet `0.7245`
 - Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 - Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
+- Final all-model comparison is built from saved shared-subset metrics so ML models can be trained separately while lexicons remain in the same comparison
 
 ## Notebook Role
 
-The notebooks are intentionally lightweight. They orchestrate the reusable code in `src/`, document the workflow, and summarize outputs without duplicating the core pipeline logic.
+The notebooks are intentionally lightweight. They follow the CLI workflow step-by-step, document each stage of the experiment, and summarize saved outputs without duplicating the core pipeline logic.
