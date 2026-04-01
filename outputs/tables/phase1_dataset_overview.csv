@@ -1,0 +1,13 @@
+metric,value
+rows_before_duplicate_removal,2277.0
+rows_after_duplicate_removal,203.0
+duplicates_removed,2074.0
+duplicate_removal_share_pct,91.08476064997804
+unique_products_after_duplicate_removal,48.0
+unique_reviewers_after_duplicate_removal,47.0
+mean_rating_before_duplicate_removal,4.499780412823891
+mean_rating_after_duplicate_removal,4.586206896551724
+mean_review_words_before_duplicate_removal,287.50592885375494
+mean_review_words_after_duplicate_removal,51.19211822660098
+verified_reviews_after_duplicate_removal,180.0
+unverified_reviews_after_duplicate_removal,23.0

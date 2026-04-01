@@ -1,9 +1,0 @@
-ipykernel>=7.2.0
-numpy
-pandas
-matplotlib
-seaborn
-nltk
-vaderSentiment
-textblob
-scikit-learn

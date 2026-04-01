@@ -1,10 +1,51 @@
-# Python-generated files
+# Virtual environments
+.venv
+
+
+# Python cache & artifacts
 __pycache__/
-*.py[oc]
+*.py[cod]
+*.pyo
+*.pyd
+*.so
 build/
 dist/
 wheels/
 *.egg-info
 
+
 # Virtual environments
-.venv
+.venv/
+venv/
+env/
+ENV/
+
+
+# uv cache & build artifacts
+.uv/
+*.lock.tmp
+
+
+# Jupyter Notebook cache
+.ipynb_checkpoints/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs & temp files
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Data
+data/raw/Appliances.json.gz
+data/interim/
+data/processed/
+
+# Ignore skills + agents file
+skills/*
+AGENTS.md

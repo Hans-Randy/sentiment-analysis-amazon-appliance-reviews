@@ -1,147 +1,139 @@
 # Sentiment Analysis on Amazon Appliance Reviews
 
-A natural language processing (NLP) project analyzing sentiment in Amazon appliance reviews using both lexicon-based and machine learning approaches.
+This repository contains a two-phase sentiment analysis experiment on Amazon appliance reviews.
 
-## Project Overview
+## Phases
 
-This project analyzes customer sentiment from Amazon appliance reviews across two phases:
+- Phase 1 compares three lexicon-based sentiment methods: VADER, TextBlob, and SentiWordNet.
+- Phase 2 uses the larger `data/raw/Appliances.json.gz` dataset, performs the same exploration workflow, and compares TF-IDF machine-learning baselines with lexicon baselines on a shared evaluation subset.
 
-- **Phase 1**: Lexicon-based sentiment analysis using established NLP libraries (VADER, TextBlob)
-- **Phase 2**: Machine learning-based approach (planned) for more sophisticated sentiment prediction
+## Project Layout
 
-## Project Structure
-
-```
+```text
 sentiment_analysis_amazon_appliance_reviews/
-├── phase_one/
-│   ├── main.ipynb           # Primary analysis notebook
-│   ├── data/                # Raw appliance review data
-│   └── outputs/             # Generated results and visualizations
-├── phase_two/               # Machine learning approach (in development)
-├── requirements.txt         # Project dependencies
-└── README.md               # This file
+├── README.md
+├── pyproject.toml
+├── uv.lock
+├── data/
+│   ├── raw/
+│   │   ├── Appliances_5.json.gz
+│   │   └── Appliances.json.gz
+│   ├── interim/
+│   │   ├── amazon_appliances_reviews_prepared.csv
+│   │   ├── amazon_appliances_large_reviews_prepared.csv
+│   │   └── amazon_appliances_large_phase2_development_sample_prepared.csv
+│   └── processed/
+│       ├── amazon_appliances_reviews_labeled.csv
+│       ├── amazon_appliances_large_reviews_labeled.csv
+│       └── amazon_appliances_large_phase2_development_sample_labeled.csv
+├── notebooks/
+│   ├── old_phase1_lexicon_comparison.ipynb
+│   ├── phase1_lexicon_comparison.ipynb
+│   └── phase2_ml_sentiment.ipynb
+├── outputs/
+│   ├── figures/
+│   ├── metrics/
+│   ├── models/
+│   ├── predictions/
+│   └── tables/
+├── reports/
+│   ├── experiment_notes.md
+│   └── final_report.md
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── data_prep.py
+│   ├── evaluate.py
+│   ├── features.py
+│   ├── lexicon_baselines.py
+│   ├── phase1_exploration.py
+│   ├── train_ml.py
+│   └── utils.py
+└── tests/
+    └── test_data_pipeline.py
 ```
 
-## Phase One: Lexicon-Based Sentiment Analysis
+## Label Mapping
 
-### Approach
+Labels are derived directly from star ratings:
 
-Phase 1 uses lexicon-based methods to classify sentiment. The process includes:
+- 1-2 stars -> `Negative`
+- 3 stars -> `Neutral`
+- 4-5 stars -> `Positive`
 
-1. **Data Loading & Exploration**
-   - Load gzipped JSON appliance reviews
-   - Analyze review distribution, ratings, and verification status
+This mapping is implemented in `src/data_prep.py` and reused across both phases.
 
-2. **Text Preprocessing**
-   - Remove duplicates and empty reviews
-   - Tokenization using NLTK
-   - Stopword removal
-   - Lemmatization with WordNetLemmatizer
+## Reproducible Preprocessing
 
-3. **Sentiment Classification**
-   - **VADER**: Rule-based sentiment analyzer optimized for social media
-   - **TextBlob**: Simple polarity-based sentiment scoring
-   - Both analyzers compared for validation
+The shared preparation pipeline:
 
-4. **Evaluation**
-   - Confusion matrices
-   - Performance metrics (accuracy, precision, recall, F1-score)
-   - Cross-method validation
+- loads the requested raw dataset file explicitly for each phase
+- removes empty `reviewText` rows
+- removes exact duplicates by `reviewerID`, `asin`, and `reviewText`
+- combines `summary` and `reviewText` into a single `text` feature
+- saves prepared data to `data/interim/` and `data/processed/`
 
-### Key Libraries
+## Environment
 
-- **pandas**: Data manipulation and analysis
-- **numpy**: Numerical computing
-- **nltk**: Natural language toolkit for text processing
-- **vaderSentiment**: Lexicon-based sentiment analysis
-- **textblob**: Simple text processing and sentiment analysis
-- **scikit-learn**: Machine learning metrics and evaluation
-- **matplotlib & seaborn**: Data visualization
+Use `uv` for dependency management and command execution.
 
-## Phase Two: Machine Learning Approach (Planned)
+Install dependencies:
 
-Phase 2 will implement machine learning models for sentiment classification, including:
+```bash
+uv sync
+```
 
-- Feature extraction (TF-IDF, Word embeddings)
-- Model training (Logistic Regression, SVM, Neural Networks, etc.)
-- Cross-validation and hyperparameter tuning
-- Performance comparison with Phase 1 results
+## Run The Pipelines
 
-## Installation
+Prepare the Phase 1 dataset helper output:
 
-### Prerequisites
+```bash
+uv run python -m src.data_prep
+```
 
-- Python 3.13+
+Run Phase 1 lexicon baselines:
 
-### Setup
+```bash
+uv run python -m src.lexicon_baselines
+```
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Run the Phase 2 baseline ML experiment:
 
-3. Run the analysis notebook:
-   ```bash
-   jupyter notebook phase_one/main.ipynb
-   ```
+```bash
+uv run python -m src.train_ml
+```
 
-## Dataset
+Notes:
 
-The project uses Amazon appliance reviews in gzipped JSON format (`Appliances_5.json.gz`). Each review contains:
-- Rating (1-5 stars)
-- Review text
-- Verification status
-- Other metadata
+- `uv run python -m src.data_prep` prepares the small Phase 1 dataset from `data/raw/Appliances_5.json.gz`
+- `uv run python -m src.train_ml` prepares the large Phase 2 dataset from `data/raw/Appliances.json.gz`, saves large-dataset exploration artifacts, trains the ML baselines, and evaluates lexicon baselines on the shared comparison subset
 
-## Results & Outputs
+Run tests:
 
-Phase 1 generates:
-- Sentiment predictions from VADER and TextBlob
-- Comparative analysis and visualizations
-- Confusion matrices and performance metrics
-- Results stored in `phase_one/outputs/`
+```bash
+uv run python -m pytest tests/test_data_pipeline.py
+```
 
-## Dependencies
+## Generated Artifacts
 
-See `requirements.txt` for the complete list of dependencies.
+- Prepared datasets: `data/interim/`, `data/processed/`
+- Metrics JSON: `outputs/metrics/`
+- Prediction CSV files: `outputs/predictions/`
+- Summary tables: `outputs/tables/`
+- Confusion matrix figures: `outputs/figures/`
+- Trained baseline model: `outputs/models/`
+- Phase 1 and Phase 2 exploration figures include before/after duplicate-removal comparisons for ratings, labels, review lengths, reviewer/product frequency, missing values, reviewer-bias views, and duplicate-impact plots
 
-Main packages:
-- ipykernel ≥7.2.0
-- pandas
-- numpy
-- matplotlib
-- seaborn
-- nltk
-- vaderSentiment
-- textblob
-- scikit-learn
+## Current Baseline Snapshot
 
-## Usage
+- Prepared dataset after duplicate and empty-text filtering: `203` reviews
+- Phase 1 regenerated accuracy: VADER `0.7833`, TextBlob `0.7488`, SentiWordNet `0.7635`
+- Phase 2 source dataset: `data/raw/Appliances.json.gz` with `602,453` rows after empty-text filtering and `591,015` rows after duplicate removal
+- Phase 2 development sample: `60,000` rows; held-out ML test split: `12,000` rows; lexicon comparison subset: `2,000` rows
+- Phase 2 held-out ML accuracy: Linear SVC `0.8792`, Multinomial Naive Bayes `0.8942`, Logistic Regression `0.8250`
+- Phase 2 shared comparison subset accuracy: Linear SVC `0.8785`, Multinomial Naive Bayes `0.8940`, Logistic Regression `0.8400`, VADER `0.7925`, TextBlob `0.7525`, SentiWordNet `0.7435`
+- Phase 2 cross-validation, tuning, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 
-To run the sentiment analysis:
+## Notebook Role
 
-1. Open `phase_one/main.ipynb` in Jupyter Notebook
-2. Execute cells sequentially to:
-   - Load and explore the data
-   - Preprocess reviews
-   - Run sentiment analysis
-   - Generate evaluation metrics and visualizations
-
-## Notes
-
-- NLTK models are automatically downloaded on first run (punkt, stopwords, wordnet)
-- The analysis focuses on appliance reviews but can be adapted for other product categories
-- Results are compared across multiple lexicon-based approaches for robustness
-
-## Future Enhancements
-
-- Complete Phase 2 machine learning implementation
-- Explore deep learning approaches (BERT, transformers)
-- Multi-class sentiment analysis (fine-grained emotions)
-- Aspect-based sentiment analysis
-- Real-time prediction API
-
-## Author Notes
-
-This project demonstrates the effectiveness of NLP techniques in understanding customer sentiment, providing insights for product improvement and customer satisfaction analysis.
+The notebooks are intentionally lightweight. They orchestrate the reusable code in `src/`, document the workflow, and summarize outputs without duplicating the core pipeline logic.
