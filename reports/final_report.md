@@ -68,24 +68,24 @@ Cross-validation summary:
 
 | Model | Mean Weighted F1 |
 | --- | ---: |
-| Linear SVC | 0.8788 |
-| Multinomial Naive Bayes | 0.8701 |
-| Logistic Regression | 0.8523 |
+| Linear SVC | 0.8832 |
+| Multinomial Naive Bayes | 0.8746 |
+| Logistic Regression | 0.8532 |
 
 Held-out ML test results on the `12,000`-review development test split:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8942 | 0.8739 |
-| Linear SVC | 0.8792 | 0.8832 |
-| Logistic Regression | 0.8250 | 0.8521 |
+| Multinomial Naive Bayes | 0.8958 | 0.8758 |
+| Linear SVC | 0.8817 | 0.8854 |
+| Logistic Regression | 0.8249 | 0.8520 |
 
 Shared comparison-subset results on the `2,000`-review lexicon comparison subset:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8940 | 0.8737 |
-| Linear SVC | 0.8785 | 0.8810 |
+| Multinomial Naive Bayes | 0.8980 | 0.8777 |
+| Linear SVC | 0.8805 | 0.8835 |
 | Logistic Regression | 0.8400 | 0.8621 |
 | VADER | 0.7925 | 0.8075 |
 | TextBlob | 0.7525 | 0.7881 |
@@ -96,6 +96,7 @@ Phase 2 takeaway:
 - The larger dataset produces a more realistic Phase 2 experiment than the small Phase 1 file.
 - On the shared comparison subset, the ML baselines outperform the lexicon baselines.
 - Multinomial Naive Bayes is the strongest current Phase 2 baseline on this development setup, followed by Linear SVC.
+- Hyperparameter tuning is now separated from the normal training pipeline so repeated training runs stay faster and easier to reproduce.
 
 ## Artifacts
 

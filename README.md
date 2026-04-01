@@ -47,6 +47,11 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── features.py
 │   ├── lexicon_baselines.py
 │   ├── phase1_exploration.py
+│   ├── prepare_phase2.py
+│   ├── tune_logistic_regression.py
+│   ├── tune_multinomial_nb.py
+│   ├── tune_svm.py
+│   ├── tune_utils.py
 │   ├── train_ml.py
 │   └── utils.py
 └── tests/
@@ -97,7 +102,21 @@ Run Phase 1 lexicon baselines:
 uv run python -m src.lexicon_baselines
 ```
 
-Run the Phase 2 baseline ML experiment:
+Prepare the Phase 2 large-dataset artifacts:
+
+```bash
+uv run python -m src.prepare_phase2
+```
+
+Tune Phase 2 models when needed:
+
+```bash
+uv run python -m src.tune_logistic_regression
+uv run python -m src.tune_multinomial_nb
+uv run python -m src.tune_svm
+```
+
+Run the Phase 2 baseline ML experiment with fixed defaults:
 
 ```bash
 uv run python -m src.train_ml
@@ -106,7 +125,9 @@ uv run python -m src.train_ml
 Notes:
 
 - `uv run python -m src.data_prep` prepares the small Phase 1 dataset from `data/raw/Appliances_5.json.gz`
-- `uv run python -m src.train_ml` prepares the large Phase 2 dataset from `data/raw/Appliances.json.gz`, saves large-dataset exploration artifacts, trains the ML baselines, and evaluates lexicon baselines on the shared comparison subset
+- `uv run python -m src.prepare_phase2` prepares the large Phase 2 dataset from `data/raw/Appliances.json.gz` and saves the large-dataset exploration artifacts
+- tuning is now separated from training; review the tuning outputs, then manually promote the chosen parameters into `src.train_ml.py`
+- `uv run python -m src.train_ml` trains and evaluates the Phase 2 baselines using the fixed defaults in `src.train_ml.py`
 
 Run tests:
 
@@ -130,9 +151,10 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Phase 1 regenerated accuracy: VADER `0.7833`, TextBlob `0.7488`, SentiWordNet `0.7635`
 - Phase 2 source dataset: `data/raw/Appliances.json.gz` with `602,453` rows after empty-text filtering and `591,015` rows after duplicate removal
 - Phase 2 development sample: `60,000` rows; held-out ML test split: `12,000` rows; lexicon comparison subset: `2,000` rows
-- Phase 2 held-out ML accuracy: Linear SVC `0.8792`, Multinomial Naive Bayes `0.8942`, Logistic Regression `0.8250`
-- Phase 2 shared comparison subset accuracy: Linear SVC `0.8785`, Multinomial Naive Bayes `0.8940`, Logistic Regression `0.8400`, VADER `0.7925`, TextBlob `0.7525`, SentiWordNet `0.7435`
-- Phase 2 cross-validation, tuning, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
+- Phase 2 held-out ML accuracy: Linear SVC `0.8817`, Multinomial Naive Bayes `0.8958`, Logistic Regression `0.8249`
+- Phase 2 shared comparison subset accuracy: Linear SVC `0.8805`, Multinomial Naive Bayes `0.8980`, Logistic Regression `0.8400`, VADER `0.7925`, TextBlob `0.7525`, SentiWordNet `0.7435`
+- Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
+- Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
 
 ## Notebook Role
 

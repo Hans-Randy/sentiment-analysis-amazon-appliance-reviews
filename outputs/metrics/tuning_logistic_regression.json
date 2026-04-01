@@ -1,0 +1,8 @@
+{
+  "model": "logistic_regression",
+  "best_score": 0.8531927296554804,
+  "best_params": {
+    "classifier__C": 2.0,
+    "tfidf__min_df": 1
+  }
+}

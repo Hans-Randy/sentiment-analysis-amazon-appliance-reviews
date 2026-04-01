@@ -19,17 +19,5 @@
     "LinearSVC",
     "MultinomialNB"
   ],
-  "tuned_models": [
-    "LogisticRegression",
-    "LinearSVC"
-  ],
-  "saved_prepared_paths": [
-    "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\interim\\amazon_appliances_large_reviews_prepared.csv",
-    "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\processed\\amazon_appliances_large_reviews_labeled.csv"
-  ],
-  "saved_development_paths": [
-    "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\interim\\amazon_appliances_large_phase2_development_sample_prepared.csv",
-    "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\processed\\amazon_appliances_large_phase2_development_sample_labeled.csv"
-  ],
   "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates ML and lexicon baselines on the same stratified lexicon comparison subset from the large dataset."
 }
