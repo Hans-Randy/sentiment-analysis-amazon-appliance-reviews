@@ -14,6 +14,7 @@
 - Phase 2 held-out ML test metrics on the large-dataset development split: Multinomial Naive Bayes accuracy `0.8942`, Linear SVC `0.8792`, Logistic Regression `0.8250`.
 - Shared lexicon-vs-ML comparison subset metrics on the large dataset: Multinomial Naive Bayes `0.8940`, Linear SVC `0.8785`, Logistic Regression `0.8400`, VADER `0.7925`, TextBlob `0.7525`, SentiWordNet `0.7435` accuracy.
 - The Phase 2 pipeline now also saves a 3-fold cross-validation summary for the ML baselines to `outputs/tables/phase2_cross_validation_summary.csv`.
-- Current cross-validation ranking on the large-dataset training split: Linear SVC `0.8788` weighted F1 mean, Multinomial Naive Bayes `0.8701`, Logistic Regression `0.8523`.
-- Lightweight hyperparameter search on the large dataset currently favors Linear SVC with `C=0.5` and `tfidf__min_df=1`, and Logistic Regression with `C=2.0` and `tfidf__min_df=1`.
+- Current cross-validation ranking on the large-dataset training split: Linear SVC `0.8832` weighted F1 mean, Multinomial Naive Bayes `0.8746`, Logistic Regression `0.8532`.
+- Tuning is now separated from training into `src.tune_logistic_regression.py`, `src.tune_multinomial_nb.py`, and `src.tune_svm.py`.
+- Current best large-dataset tuning results: Linear SVC `C=0.5, tfidf__min_df=1`; Multinomial Naive Bayes `alpha=0.1, tfidf__min_df=1`; Logistic Regression `C=2.0, tfidf__min_df=1`.
 - Phase 2 exploration for the large dataset is saved with `phase2_` prefixes under `outputs/figures/` and `outputs/tables/`.
