@@ -4,9 +4,11 @@
   "prepared_rows": 591015,
   "duplicate_rows_removed": 11438,
   "development_sample_rows": 60000,
-  "train_rows": 48000,
-  "test_rows": 12000,
+  "train_rows": 42000,
+  "test_rows": 18000,
   "lexicon_comparison_subset_rows": 2000,
+  "train_test_split": "70/30",
+  "train_test_stratify_field": "overall",
   "random_state": 42,
   "label_mapping": {
     "1-2": "Negative",

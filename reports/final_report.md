@@ -11,9 +11,10 @@ This project implements a two-phase sentiment analysis experiment on Amazon appl
 
 Common preprocessing steps:
 
-- remove rows with empty `reviewText`
-- remove exact duplicates by `reviewerID`, `asin`, and `reviewText`
-- combine `summary` and `reviewText` into a single `text` field
+- remove rows with empty `reviewText` so every example has usable review content for scoring and feature extraction
+- remove exact duplicates by `reviewerID`, `asin`, and `reviewText` to reduce repeated evidence and make the evaluation less biased by duplicated reviews
+- combine `summary` and `reviewText` into a single `text` field so short summaries and longer review bodies both contribute to the sentiment signal
+- derive sentiment labels from ratings so the sentiment pipeline has a reproducible target variable shared by lexicon and machine-learning comparisons
 
 Label mapping derived from star ratings:
 
@@ -59,37 +60,48 @@ Phase 2 exploration:
 Development workflow:
 
 - reproducible stratified development sample from the prepared large dataset: `60,000` rows
-- stratified train/test split from the development sample: `48,000` train, `12,000` test
+- stratified train/test split from the development sample using the raw `overall` rating field: `42,000` train, `18,000` test
 - 3-fold cross-validation on the training split
-- lightweight hyperparameter search for logistic regression and Linear SVC
+- separate per-model hyperparameter tuning scripts for logistic regression, Linear SVC, and Multinomial Naive Bayes
 - lexicon baselines evaluated on a shared stratified `2,000`-review comparison subset from the large-dataset test split
+
+Text representation:
+
+- TF-IDF is used for the machine-learning models because it is a strong and interpretable sparse baseline for sentiment classification, scales well to large review corpora, and works effectively with linear models and Naive Bayes.
 
 Cross-validation summary:
 
 | Model | Mean Weighted F1 |
 | --- | ---: |
-| Linear SVC | 0.8832 |
-| Multinomial Naive Bayes | 0.8746 |
-| Logistic Regression | 0.8532 |
+| Linear SVC | 0.8839 |
+| Multinomial Naive Bayes | 0.8731 |
+| Logistic Regression | 0.8538 |
 
-Held-out ML test results on the `12,000`-review development test split:
+Held-out ML test results on the `18,000`-review development test split:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8958 | 0.8758 |
-| Linear SVC | 0.8817 | 0.8854 |
-| Logistic Regression | 0.8249 | 0.8520 |
+| Multinomial Naive Bayes | 0.8932 | 0.8736 |
+| Linear SVC | 0.8799 | 0.8840 |
+| Logistic Regression | 0.8275 | 0.8534 |
 
 Shared comparison-subset results on the `2,000`-review lexicon comparison subset:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8980 | 0.8777 |
-| Linear SVC | 0.8805 | 0.8835 |
-| Logistic Regression | 0.8400 | 0.8621 |
-| VADER | 0.7925 | 0.8075 |
-| TextBlob | 0.7525 | 0.7881 |
-| SentiWordNet | 0.7435 | 0.7673 |
+| Multinomial Naive Bayes | 0.8915 | 0.8728 |
+| Linear SVC | 0.8745 | 0.8801 |
+| Logistic Regression | 0.8205 | 0.8494 |
+| VADER | 0.7870 | 0.8052 |
+| TextBlob | 0.7225 | 0.7574 |
+| SentiWordNet | 0.7245 | 0.7527 |
+
+Model evaluation details:
+
+- Accuracy, weighted precision, weighted recall, weighted F1, per-class metrics, and confusion matrices are generated for each machine-learning model.
+- The full metric JSON files are saved under `outputs/metrics/`.
+- Confusion matrices for the machine-learning models are saved under `outputs/figures/phase2_*_confusion_matrix.png`.
+- The assignment minimum is two machine-learning models, but the experiment keeps all three trained models in the final comparison to provide a broader baseline set.
 
 Phase 2 takeaway:
 

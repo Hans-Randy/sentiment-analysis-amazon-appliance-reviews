@@ -45,7 +45,7 @@ def build_model_pipelines() -> dict[str, Pipeline]:
         ),
         "LinearSVC": Pipeline(
             steps=[
-                ("tfidf", build_tfidf_vectorizer().set_params(min_df=1)),
+                ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
                 (
                     "classifier",
                     LinearSVC(
@@ -58,7 +58,7 @@ def build_model_pipelines() -> dict[str, Pipeline]:
         ),
         "MultinomialNB": Pipeline(
             steps=[
-                ("tfidf", build_tfidf_vectorizer().set_params(min_df=1)),
+                ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
                 ("classifier", MultinomialNB(alpha=0.1)),
             ]
         ),
@@ -201,9 +201,9 @@ def run_ml_pipeline() -> dict:
         tuple[pd.DataFrame, pd.DataFrame],
         train_test_split(
             development_df,
-            test_size=0.2,
+            test_size=0.3,
             random_state=DEFAULT_RANDOM_STATE,
-            stratify=development_df["label"],
+            stratify=development_df["overall"],
         ),
     )
 
@@ -258,6 +258,8 @@ def run_ml_pipeline() -> dict:
             "train_rows": int(len(train_df)),
             "test_rows": int(len(test_df)),
             "lexicon_comparison_subset_rows": int(len(lexicon_subset_df)),
+            "train_test_split": "70/30",
+            "train_test_stratify_field": "overall",
             "random_state": DEFAULT_RANDOM_STATE,
             "label_mapping": profile["label_mapping"],
             "cross_validation_folds": 3,

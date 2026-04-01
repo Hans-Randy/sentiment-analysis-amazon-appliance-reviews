@@ -81,7 +81,7 @@ def build_lexicon_comparison_subset(test_df: pd.DataFrame) -> pd.DataFrame:
             test_df,
             train_size=PHASE2_LEXICON_COMPARISON_SAMPLE_SIZE,
             random_state=DEFAULT_RANDOM_STATE,
-            stratify=test_df["label"],
+            stratify=test_df["overall"],
         ),
     )
     return lexicon_subset_df.reset_index(drop=True)

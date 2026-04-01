@@ -17,9 +17,9 @@ def load_phase2_splits() -> tuple[pd.DataFrame, pd.DataFrame]:
         tuple[pd.DataFrame, pd.DataFrame],
         train_test_split(
             development_df,
-            test_size=0.2,
+            test_size=0.3,
             random_state=DEFAULT_RANDOM_STATE,
-            stratify=development_df["label"],
+            stratify=development_df["overall"],
         ),
     )
     return train_df, test_df
@@ -53,6 +53,6 @@ def run_grid_search(
         },
         METRICS_DIR / f"tuning_{model_name}.json",
     )
-    return results_df[
-        ["params", "mean_test_score", "std_test_score", "rank_test_score"]
-    ]
+    return pd.DataFrame(
+        results_df[["params", "mean_test_score", "std_test_score", "rank_test_score"]]
+    )

@@ -1,8 +1,8 @@
 {
   "model": "svm",
-  "best_score": 0.8832435401794808,
+  "best_score": 0.8838861301399121,
   "best_params": {
     "classifier__C": 0.5,
-    "tfidf__min_df": 1
+    "tfidf__min_df": 2
   }
 }
