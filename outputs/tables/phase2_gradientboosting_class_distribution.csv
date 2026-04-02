@@ -1,0 +1,10 @@
+label,GradientBoosting_pred,count
+Negative,Negative,1449
+Negative,Neutral,6
+Negative,Positive,950
+Neutral,Negative,149
+Neutral,Neutral,17
+Neutral,Positive,740
+Positive,Negative,266
+Positive,Neutral,13
+Positive,Positive,14410
