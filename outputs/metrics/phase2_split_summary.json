@@ -41,10 +41,10 @@
   },
   "cross_validation_folds": 3,
   "ml_models": [
-    "MLP"
+    "GradientBoosting"
   ],
   "selected_model_cli_names": [
-    "mlp"
+    "gradient_boosting"
   ],
   "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the shared comparison subset, and phase2_model_comparison.csv includes lexicon baselines when lexicon comparison is enabled."
 }
