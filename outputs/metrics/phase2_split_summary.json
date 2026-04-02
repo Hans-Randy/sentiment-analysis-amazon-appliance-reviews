@@ -7,6 +7,30 @@
   "train_rows": 42000,
   "test_rows": 18000,
   "lexicon_comparison_subset_rows": 2000,
+  "comparison_subset_metadata": {
+    "source_file": "data\\raw\\Appliances.json.gz",
+    "train_test_split": "70/30",
+    "train_test_stratify_field": "overall",
+    "random_state": 42,
+    "subset": {
+      "subset_name": "phase2_lexicon_comparison_subset",
+      "rows": 2000,
+      "overall_distribution": {
+        "1.0": 198,
+        "2.0": 69,
+        "3.0": 101,
+        "4.0": 256,
+        "5.0": 1376
+      },
+      "label_distribution": {
+        "Positive": 1632,
+        "Negative": 267,
+        "Neutral": 101
+      },
+      "text_hash_sum": 6785662553134306987
+    },
+    "subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
+  },
   "train_test_split": "70/30",
   "train_test_stratify_field": "overall",
   "random_state": 42,
@@ -17,9 +41,10 @@
   },
   "cross_validation_folds": 3,
   "ml_models": [
-    "LogisticRegression",
-    "LinearSVC",
-    "MultinomialNB"
+    "MLP"
   ],
-  "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. phase2_model_comparison.csv evaluates ML and lexicon baselines on the same stratified lexicon comparison subset from the large dataset."
+  "selected_model_cli_names": [
+    "mlp"
+  ],
+  "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the shared comparison subset, and phase2_model_comparison.csv includes lexicon baselines when lexicon comparison is enabled."
 }

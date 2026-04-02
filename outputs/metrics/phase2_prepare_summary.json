@@ -30,5 +30,6 @@
   "saved_development_paths": [
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\interim\\amazon_appliances_large_phase2_development_sample_prepared.csv",
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\processed\\amazon_appliances_large_phase2_development_sample_labeled.csv"
-  ]
+  ],
+  "saved_comparison_subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
 }

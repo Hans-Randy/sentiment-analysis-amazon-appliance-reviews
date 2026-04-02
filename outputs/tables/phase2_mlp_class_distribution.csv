@@ -1,0 +1,10 @@
+label,MLP_pred,count
+Negative,Negative,1829
+Negative,Neutral,50
+Negative,Positive,526
+Neutral,Negative,212
+Neutral,Neutral,93
+Neutral,Positive,601
+Positive,Negative,295
+Positive,Neutral,106
+Positive,Positive,14288

@@ -1,0 +1,67 @@
+{
+  "model": "LogisticRegression",
+  "evaluation_scope": "shared_comparison_subset",
+  "subset_metadata": {
+    "source_file": "data\\raw\\Appliances.json.gz",
+    "train_test_split": "70/30",
+    "train_test_stratify_field": "overall",
+    "random_state": 42,
+    "subset": {
+      "subset_name": "phase2_lexicon_comparison_subset",
+      "rows": 2000,
+      "overall_distribution": {
+        "1.0": 198,
+        "2.0": 69,
+        "3.0": 101,
+        "4.0": 256,
+        "5.0": 1376
+      },
+      "label_distribution": {
+        "Positive": 1632,
+        "Negative": 267,
+        "Neutral": 101
+      },
+      "text_hash_sum": 6785662553134306987
+    },
+    "subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
+  },
+  "metrics": {
+    "accuracy": 0.8205,
+    "precision_weighted": 0.892179106999082,
+    "recall_weighted": 0.8205,
+    "f1_weighted": 0.8493952480302327,
+    "classification_report": {
+      "Negative": {
+        "precision": 0.6977491961414791,
+        "recall": 0.8127340823970037,
+        "f1-score": 0.7508650519031141,
+        "support": 267.0
+      },
+      "Neutral": {
+        "precision": 0.16287878787878787,
+        "recall": 0.42574257425742573,
+        "f1-score": 0.2356164383561644,
+        "support": 101.0
+      },
+      "Positive": {
+        "precision": 0.9691228070175438,
+        "recall": 0.8462009803921569,
+        "f1-score": 0.9035001635590448,
+        "support": 1632.0
+      },
+      "accuracy": 0.8205,
+      "macro avg": {
+        "precision": 0.609916930345937,
+        "recall": 0.6948925456821954,
+        "f1-score": 0.6299938846061078,
+        "support": 2000.0
+      },
+      "weighted avg": {
+        "precision": 0.892179106999082,
+        "recall": 0.8205,
+        "f1-score": 0.8493952480302327,
+        "support": 2000.0
+      }
+    }
+  }
+}

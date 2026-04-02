@@ -64,6 +64,8 @@ Development workflow:
 - 3-fold cross-validation on the training split
 - separate per-model hyperparameter tuning scripts for logistic regression, Linear SVC, and Multinomial Naive Bayes
 - lexicon baselines evaluated on a shared stratified `2,000`-review comparison subset from the large-dataset test split
+- the final comparison table is aggregated from saved per-model comparison metrics so ML models can be trained independently while preserving the same lexicon comparison subset
+- optional experimental models such as MLP and Gradient Boosting can be trained separately without forcing them into every default run
 
 Text representation:
 
@@ -109,6 +111,7 @@ Phase 2 takeaway:
 - On the shared comparison subset, the ML baselines outperform the lexicon baselines.
 - Multinomial Naive Bayes is the strongest current Phase 2 baseline on this development setup, followed by Linear SVC.
 - Hyperparameter tuning is now separated from the normal training pipeline so repeated training runs stay faster and easier to reproduce.
+- The repository now supports a separate aggregation step so independently trained models and lexicon baselines can still appear in one final comparison table.
 
 ## Artifacts
 
