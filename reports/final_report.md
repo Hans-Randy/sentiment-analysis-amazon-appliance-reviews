@@ -125,6 +125,106 @@ Key outputs are saved under:
 - `outputs/figures/`
 - `outputs/models/`
 
+## Section 15: Rating Enhancement
+
+Method used:
+
+- overall-opinion-enhanced rating blend based on review text and the strongest existing sentiment model already trained in the repo
+
+Why this method was chosen:
+
+- it matches the project brief's simplified paper-inspired requirement directly
+- it reuses the existing sentiment infrastructure already built for the COMP 262 project
+- it is easier to justify and implement clearly than topic, helpfulness, or aspect-based alternatives that are not already part of this repo
+
+Implementation summary:
+
+- source dataset: `data/processed/amazon_appliances_large_reviews_labeled.csv`
+- usable rows: `591,015`
+- text field used: merged `text = summary + reviewText`
+- inferred overall opinion source: `outputs/models/phase2_mlp.joblib`
+- sentiment-to-rating mapping:
+  - Negative -> `1.5`
+  - Neutral -> `3.0`
+  - Positive -> `4.5`
+- enhanced rating formula:
+  - `enhanced_rating = alpha * original_rating + (1 - alpha) * inferred_rating`
+
+Alpha results:
+
+| Alpha | MAE | RMSE |
+| --- | ---: | ---: |
+| 0.9 | 0.0667 | 0.0810 |
+| 0.8 | 0.1333 | 0.1621 |
+| 0.7 | 0.2000 | 0.2431 |
+| 0.6 | 0.2667 | 0.3241 |
+
+Section 15 takeaway:
+
+- the best setting on this internal evaluation is `alpha = 0.9`
+- because the original rating is used as the evaluation reference, the strongest result naturally stays close to the original rating
+- the section still demonstrates a complete and reproducible implementation of review-based rating enhancement
+
+Detailed write-up:
+
+- `reports/section15_rating_enhancement.md`
+
+## Section 16: Local Review Summarization
+
+Task setup:
+
+- selected exactly `10` reviews with `review_word_count > 100`
+- selection is deterministic
+- local Hugging Face summarization model used: `sshleifer/distilbart-cnn-12-6`
+
+Why this model was used:
+
+- it is small enough to run locally on CPU hardware
+- it is specifically designed for summarization-style generation
+- it avoids dependence on hosted APIs
+
+Generation setup:
+
+- deterministic decoding (`do_sample=False`)
+- target length: about `50` words
+- `min_new_tokens = 45`
+- `max_new_tokens = 96`
+
+Observed result summary:
+
+- summary lengths ranged from `44` to `71` words for most examples, with one longer outlier at `81`
+- the model usually preserves the main product opinion and the central issue or benefit
+- some summaries still contain repeated phrases or awkward trailing text, which is a limitation of the compact CPU-friendly local model
+
+Detailed write-up:
+
+- `reports/section16_llm_summarization.md`
+
+## Section 17: Local Customer-Service Response
+
+Task setup:
+
+- selected one deterministic question-like review using simple heuristics on the merged `text` field
+- selected review index: `287943`
+- selected because it contains a question mark and asks whether the cracked lid window should be returned or replaced locally
+- local Hugging Face response model used: `Qwen/Qwen2.5-0.5B-Instruct`
+
+Prompt strategy:
+
+- few-shot instruction prompt
+- asks for a polite, concise customer-service style response
+- encourages acknowledgement of the issue and a safe next step without making guarantees
+
+Observed quality:
+
+- the generated response is polite and broadly customer-service oriented
+- however, it remains generic and is not fully grounded in the exact cracked-window scenario
+- this is acceptable as a local CPU-friendly baseline, but the response would still need human review before real deployment
+
+Detailed write-up:
+
+- `reports/section17_llm_response.md`
+
 ## Conclusion
 
-The repository now supports a reproducible two-phase workflow with reusable code in `src/`, readable orchestration notebooks, saved experiment artifacts, and basic test coverage. Phase 2 now uses the correct larger dataset and compares lexicon and ML baselines within the same large-dataset evaluation workflow.
+The repository now supports a reproducible two-phase workflow with reusable code in `src/`, readable orchestration notebooks, saved experiment artifacts, and basic test coverage. Phase 2 now uses the correct larger dataset, compares lexicon and ML baselines within the same large-dataset evaluation workflow, implements review-based rating enhancement, and adds locally hosted Hugging Face workflows for review summarization and customer-service response generation.

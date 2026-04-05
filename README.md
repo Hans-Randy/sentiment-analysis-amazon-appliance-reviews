@@ -54,9 +54,12 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── compare_lexicons.py
 │   ├── compare_models.py
 │   ├── lexicon_baselines.py
+│   ├── llm_review_response.py
+│   ├── llm_summarize_reviews.py
 │   ├── model_registry.py
 │   ├── phase1_exploration.py
 │   ├── prepare_phase2.py
+│   ├── rating_enhancement.py
 │   ├── tune_gradient_boosting.py
 │   ├── tune_logistic_regression.py
 │   ├── tune_mlp.py
@@ -136,6 +139,14 @@ uv run python -m src.compare_lexicons
 uv run python -m src.compare_models
 ```
 
+Run the remaining COMP 262 Phase 2 Sections 15-17 deliverables:
+
+```bash
+uv run python -m src.rating_enhancement
+uv run python -m src.llm_summarize_reviews
+uv run python -m src.llm_review_response
+```
+
 Run the Phase 2 baseline ML experiment with fixed defaults:
 
 ```bash
@@ -161,6 +172,9 @@ Notes:
 - experimental models (`mlp`, `gradient_boosting`) are available through selective training and are not part of the default run
 - `uv run python -m src.compare_lexicons` evaluates VADER, TextBlob, and SentiWordNet on the saved shared Phase 2 comparison subset
 - `uv run python -m src.compare_models` merges saved ML and lexicon comparison metrics into the final comparison table and figure
+- `uv run python -m src.rating_enhancement` implements the paper-inspired review-based rating enhancement experiment for Section 15
+- `uv run python -m src.llm_summarize_reviews` generates 10 local-Hugging-Face summaries for Section 16
+- `uv run python -m src.llm_review_response` generates one local-Hugging-Face customer-service style response for Section 17
 
 Run tests:
 
@@ -190,6 +204,9 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 - Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
 - Final all-model comparison is built from saved shared-subset metrics so ML models can be trained separately while lexicons remain in the same comparison
+- Section 15 artifacts are saved as `outputs/tables/rating_enhancement_*.csv` and `reports/section15_rating_enhancement.md`
+- Section 16 artifacts are saved as `outputs/tables/section16_review_summaries.csv` and `reports/section16_llm_summarization.md`
+- Section 17 artifacts are saved as `outputs/tables/section17_customer_response.csv` and `reports/section17_llm_response.md`
 
 ## Notebook Role
 
