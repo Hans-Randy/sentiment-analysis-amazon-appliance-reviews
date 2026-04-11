@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 
@@ -8,12 +9,30 @@ from src.config import FIGURES_DIR, METRICS_DIR, TABLES_DIR
 from src.utils import ensure_directories
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Aggregate saved Phase 2 comparison metrics."
+    )
+    parser.add_argument(
+        "--metrics-dir",
+        type=str,
+        default=None,
+        help="Optional directory containing Phase 2 comparison metric JSON files.",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail if any expected lexicon comparison files are missing.",
+    )
+    return parser.parse_args()
+
+
 def load_metric_file(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def collect_comparison_metric_paths() -> list[Path]:
-    return sorted(METRICS_DIR.glob("phase2_*_comparison_metrics.json"))
+def collect_comparison_metric_paths(metrics_dir: Path) -> list[Path]:
+    return sorted(metrics_dir.glob("phase2_*_comparison_metrics.json"))
 
 
 def validate_subset_metadata(metric_payloads: list[dict]) -> dict:
@@ -63,8 +82,21 @@ def save_comparison_chart(comparison_df: pd.DataFrame) -> None:
 
 
 def main() -> None:
+    args = parse_args()
     ensure_directories([FIGURES_DIR, TABLES_DIR])
-    metric_paths = collect_comparison_metric_paths()
+    metrics_dir = Path(args.metrics_dir) if args.metrics_dir else METRICS_DIR
+    metric_paths = collect_comparison_metric_paths(metrics_dir)
+    if args.strict:
+        required = {
+            metrics_dir / "phase2_vader_comparison_metrics.json",
+            metrics_dir / "phase2_textblob_comparison_metrics.json",
+            metrics_dir / "phase2_sentiwordnet_comparison_metrics.json",
+        }
+        missing = sorted(str(path.name) for path in required if not path.exists())
+        if missing:
+            raise FileNotFoundError(
+                f"Missing required comparison metric files: {', '.join(missing)}"
+            )
     payloads = [load_metric_file(path) for path in metric_paths]
     subset_metadata = validate_subset_metadata(payloads)
     comparison_df = pd.DataFrame(

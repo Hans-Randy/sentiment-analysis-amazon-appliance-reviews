@@ -122,6 +122,13 @@ Prepare the Phase 2 large-dataset artifacts:
 uv run python -m src.prepare_phase2
 ```
 
+Useful Phase 2 preparation overrides:
+
+```bash
+uv run python -m src.prepare_phase2 --sample-size 60000 --comparison-size 2000
+uv run python -m src.prepare_phase2 --sample-size 100000 --comparison-size 5000 --skip-exploration
+```
+
 Tune Phase 2 models when needed:
 
 ```bash
@@ -159,6 +166,7 @@ Optional selective training examples:
 uv run python -m src.train_ml --models logistic_regression svm multinomial_nb
 uv run python -m src.train_ml --models mlp --skip-lexicon
 uv run python -m src.train_ml --include-experimental --skip-lexicon
+uv run python -m src.train_ml --models svm multinomial_nb --skip-cv
 ```
 
 Notes:
@@ -170,6 +178,8 @@ Notes:
 - Phase 2 now uses a 70/30 train/test split stratified by the raw `overall` rating field
 - `src.model_registry.py` defines default and experimental model pipelines plus their tuning grids
 - experimental models (`mlp`, `gradient_boosting`) are available through selective training and are not part of the default run
+- `src.prepare_phase2.py` now accepts `--sample-size`, `--comparison-size`, `--raw-data-path`, and `--skip-exploration`
+- `src.train_ml.py` now accepts `--skip-cv`, `--test-size`, `--prepared-sample-path`, and `--comparison-subset-path`
 - `uv run python -m src.compare_lexicons` evaluates VADER, TextBlob, and SentiWordNet on the saved shared Phase 2 comparison subset
 - `uv run python -m src.compare_models` merges saved ML and lexicon comparison metrics into the final comparison table and figure
 - `uv run python -m src.rating_enhancement` implements the paper-inspired review-based rating enhancement experiment for Section 15
@@ -207,6 +217,18 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Section 15 artifacts are saved as `outputs/tables/rating_enhancement_*.csv` and `reports/section15_rating_enhancement.md`
 - Section 16 artifacts are saved as `outputs/tables/section16_review_summaries.csv` and `reports/section16_llm_summarization.md`
 - Section 17 artifacts are saved as `outputs/tables/section17_customer_response.csv` and `reports/section17_llm_response.md`
+
+## Colab-Friendly Usage
+
+- The Phase 2 scripts are designed to remain local-first while also working well in Google Colab.
+- Recommended Colab pattern:
+  1. mount Google Drive
+  2. place `Appliances.json.gz` in a Drive-backed folder
+  3. set env vars such as `PHASE2_DATA_ROOT`, `PHASE2_OUTPUT_ROOT`, `PHASE2_MODELS_ROOT`, and `HF_CACHE_DIR`
+  4. run `uv run python -m src.prepare_phase2 --sample-size <n> --comparison-size <m>`
+  5. run `uv run python -m src.train_ml --models ... --skip-cv` for heavier experiments
+- Hugging Face helpers automatically use CUDA when available and fall back to CPU otherwise.
+- `gradient_boosting` remains the slowest experimental model even in stronger environments, so it is best treated as an optional run rather than a default baseline.
 
 ## Notebook Role
 
