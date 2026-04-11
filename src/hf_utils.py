@@ -11,6 +11,10 @@ DEFAULT_SUMMARIZATION_MODEL = "sshleifer/distilbart-cnn-12-6"
 DEFAULT_RESPONSE_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
 
 
+def current_device() -> str:
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
 def sanitize_model_name(model_name: str) -> str:
     return model_name.replace("/", "--")
 
@@ -20,12 +24,10 @@ def local_model_dir(model_name: str) -> Path:
 
 
 def ensure_local_seq2seq_model(model_name: str) -> Path:
-    """Download once, then reuse a local Hugging Face seq2seq model directory."""
     ensure_directories([HF_CACHE_DIR, MODELS_DIR / "hf_local"])
     model_dir = local_model_dir(model_name)
     if model_dir.exists():
         return model_dir
-
     tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=HF_CACHE_DIR)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name, cache_dir=HF_CACHE_DIR)
     tokenizer.save_pretrained(model_dir)
@@ -37,6 +39,7 @@ def load_local_seq2seq(model_name: str):
     model_dir = ensure_local_seq2seq_model(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_dir, local_files_only=True)
+    model.to(current_device())
     model.eval()
     return tokenizer, model
 
@@ -46,7 +49,6 @@ def ensure_local_causal_model(model_name: str) -> Path:
     model_dir = local_model_dir(model_name)
     if model_dir.exists():
         return model_dir
-
     tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=HF_CACHE_DIR)
     model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=HF_CACHE_DIR)
     tokenizer.save_pretrained(model_dir)
@@ -58,23 +60,17 @@ def load_local_causal(model_name: str):
     model_dir = ensure_local_causal_model(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
     model = AutoModelForCausalLM.from_pretrained(model_dir, local_files_only=True)
+    model.to(current_device())
     model.eval()
     return tokenizer, model
 
 
 def generate_text(
-    seq2seq_model,
-    prompt: str,
-    max_new_tokens: int,
-    min_new_tokens: int = 0,
+    seq2seq_model, prompt: str, max_new_tokens: int, min_new_tokens: int = 0
 ) -> str:
     tokenizer, model = seq2seq_model
-    encoded = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=True,
-        max_length=1024,
-    )
+    encoded = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+    encoded = {key: value.to(current_device()) for key, value in encoded.items()}
     with torch.no_grad():
         generated_ids = model.generate(
             **encoded,
@@ -90,16 +86,14 @@ def generate_chat_response(causal_model, prompt: str, max_new_tokens: int) -> st
     messages = [{"role": "user", "content": prompt}]
     if hasattr(tokenizer, "apply_chat_template"):
         formatted_prompt = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
+            messages, tokenize=False, add_generation_prompt=True
         )
     else:
         formatted_prompt = prompt
-
     encoded = tokenizer(
         formatted_prompt, return_tensors="pt", truncation=True, max_length=2048
     )
+    encoded = {key: value.to(current_device()) for key, value in encoded.items()}
     with torch.no_grad():
         generated_ids = model.generate(
             **encoded,

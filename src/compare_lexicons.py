@@ -1,4 +1,6 @@
+import argparse
 import json
+from pathlib import Path
 
 import pandas as pd
 
@@ -8,21 +10,54 @@ from src.lexicon_baselines import run_lexicon_models
 from src.utils import ensure_directories, write_json
 
 
-def load_comparison_subset() -> tuple[pd.DataFrame, dict]:
-    subset_path = PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv"
-    metadata_path = METRICS_DIR / "phase2_comparison_subset_metadata.json"
-    if not subset_path.exists() or not metadata_path.exists():
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run lexicon comparison on the shared Phase 2 subset."
+    )
+    parser.add_argument(
+        "--subset-path",
+        type=str,
+        default=None,
+        help="Optional path to a saved shared comparison subset CSV.",
+    )
+    parser.add_argument(
+        "--metadata-path",
+        type=str,
+        default=None,
+        help="Optional path to comparison subset metadata JSON.",
+    )
+    return parser.parse_args()
+
+
+def load_comparison_subset(
+    subset_path: str | None = None,
+    metadata_path: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    resolved_subset_path = (
+        Path(subset_path)
+        if subset_path
+        else PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv"
+    )
+    resolved_metadata_path = (
+        Path(metadata_path)
+        if metadata_path
+        else METRICS_DIR / "phase2_comparison_subset_metadata.json"
+    )
+    if not resolved_subset_path.exists() or not resolved_metadata_path.exists():
         raise FileNotFoundError(
             "Phase 2 comparison subset artifacts were not found. Run `uv run python -m src.prepare_phase2` first."
         )
-    subset_df = pd.read_csv(subset_path)
-    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    subset_df = pd.read_csv(resolved_subset_path, low_memory=False)
+    metadata = json.loads(resolved_metadata_path.read_text(encoding="utf-8"))
     return subset_df, metadata
 
 
 def main() -> None:
+    args = parse_args()
     ensure_directories([FIGURES_DIR, METRICS_DIR, PREDICTIONS_DIR, TABLES_DIR])
-    subset_df, subset_metadata = load_comparison_subset()
+    subset_df, subset_metadata = load_comparison_subset(
+        args.subset_path, args.metadata_path
+    )
     results_df, summary_df, metrics_by_model = run_lexicon_models(subset_df)
 
     results_df.to_csv(
@@ -37,8 +72,7 @@ def main() -> None:
         ].copy()
         prediction_frame[prediction_column] = results_df[prediction_column]
         prediction_frame.to_csv(
-            PREDICTIONS_DIR / f"phase2_{key}_comparison_predictions.csv",
-            index=False,
+            PREDICTIONS_DIR / f"phase2_{key}_comparison_predictions.csv", index=False
         )
         write_json(
             {

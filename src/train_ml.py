@@ -36,8 +36,14 @@ def artifact_stem(model_name: str) -> str:
     return model_name.lower().replace(" ", "")
 
 
-def load_comparison_subset() -> tuple[pd.DataFrame, dict]:
-    subset_path = PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv"
+def load_comparison_subset(
+    comparison_subset_path: str | None = None,
+) -> tuple[pd.DataFrame, dict]:
+    subset_path = (
+        Path(comparison_subset_path)
+        if comparison_subset_path
+        else PREDICTIONS_DIR / "phase2_lexicon_comparison_subset.csv"
+    )
     metadata_path = METRICS_DIR / "phase2_comparison_subset_metadata.json"
     if not subset_path.exists() or not metadata_path.exists():
         raise FileNotFoundError(
@@ -64,6 +70,29 @@ def parse_args() -> argparse.Namespace:
         "--skip-lexicon",
         action="store_true",
         help="Skip lexicon comparison step for faster runs.",
+    )
+    parser.add_argument(
+        "--skip-cv",
+        action="store_true",
+        help="Skip cross-validation for faster runs.",
+    )
+    parser.add_argument(
+        "--test-size",
+        type=float,
+        default=0.3,
+        help="Held-out test fraction for the Phase 2 development sample.",
+    )
+    parser.add_argument(
+        "--prepared-sample-path",
+        type=str,
+        default=None,
+        help="Optional path to a prepared Phase 2 development sample CSV.",
+    )
+    parser.add_argument(
+        "--comparison-subset-path",
+        type=str,
+        default=None,
+        help="Optional path to a shared comparison subset CSV.",
     )
     return parser.parse_args()
 
@@ -242,29 +271,50 @@ def save_ml_comparison_outputs(
 
 
 def run_ml_pipeline(
-    selected_names: list[str] | None = None, skip_lexicon: bool = False
+    selected_names: list[str] | None = None,
+    skip_lexicon: bool = False,
+    skip_cv: bool = False,
+    test_size: float = 0.3,
+    prepared_sample_path: str | None = None,
+    comparison_subset_path: str | None = None,
 ) -> dict:
     resolved_names = resolve_model_names(selected_names)
     ensure_directories([FIGURES_DIR, METRICS_DIR, PREDICTIONS_DIR, TABLES_DIR])
     outputs = prepare_phase2_artifacts()
-    development_df = cast(pd.DataFrame, outputs["development_df"])
+    if prepared_sample_path:
+        development_df = pd.read_csv(prepared_sample_path, low_memory=False)
+    else:
+        development_df = cast(pd.DataFrame, outputs["development_df"])
     profile = cast(dict, outputs["profile"])
-    comparison_subset_df, comparison_subset_metadata = load_comparison_subset()
+    comparison_subset_df, comparison_subset_metadata = load_comparison_subset(
+        comparison_subset_path
+    )
 
     train_df, test_df = cast(
         tuple[pd.DataFrame, pd.DataFrame],
         train_test_split(
             development_df,
-            test_size=0.3,
+            test_size=test_size,
             random_state=DEFAULT_RANDOM_STATE,
             stratify=development_df["overall"],
         ),
     )
 
-    cv_summary_df = cross_validate_models(train_df, resolved_names)
-    cv_summary_df.to_csv(
-        TABLES_DIR / "phase2_cross_validation_summary.csv", index=False
-    )
+    if skip_cv:
+        cv_summary_df = pd.DataFrame(
+            columns=[
+                "model",
+                "cv_accuracy_mean",
+                "cv_accuracy_std",
+                "cv_f1_weighted_mean",
+                "cv_f1_weighted_std",
+            ]
+        )
+    else:
+        cv_summary_df = cross_validate_models(train_df, resolved_names)
+        cv_summary_df.to_csv(
+            TABLES_DIR / "phase2_cross_validation_summary.csv", index=False
+        )
 
     ml_summary_df, ml_predictions_df, ml_metrics, fitted_models = evaluate_ml_models(
         train_df, test_df, resolved_names
@@ -317,11 +367,12 @@ def run_ml_pipeline(
             "test_rows": int(len(test_df)),
             "lexicon_comparison_subset_rows": lexicon_subset_size,
             "comparison_subset_metadata": comparison_subset_metadata,
-            "train_test_split": "70/30",
+            "train_test_split": f"{int((1 - test_size) * 100)}/{int(test_size * 100)}",
             "train_test_stratify_field": "overall",
+            "skip_cv": skip_cv,
             "random_state": DEFAULT_RANDOM_STATE,
             "label_mapping": profile["label_mapping"],
-            "cross_validation_folds": 3,
+            "cross_validation_folds": 0 if skip_cv else 3,
             "ml_models": [MODEL_SPECS[name].display_name for name in resolved_names],
             "selected_model_cli_names": resolved_names,
             "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the shared comparison subset, and phase2_model_comparison.csv includes lexicon baselines when lexicon comparison is enabled.",
@@ -340,7 +391,14 @@ def run_ml_pipeline(
 if __name__ == "__main__":
     args = parse_args()
     model_names = selected_cli_names(args)
-    outputs = run_ml_pipeline(model_names, skip_lexicon=args.skip_lexicon)
+    outputs = run_ml_pipeline(
+        model_names,
+        skip_lexicon=args.skip_lexicon,
+        skip_cv=args.skip_cv,
+        test_size=args.test_size,
+        prepared_sample_path=args.prepared_sample_path,
+        comparison_subset_path=args.comparison_subset_path,
+    )
     print("Phase 2 baseline training complete.")
     print(f"Trained models: {', '.join(model_names)}")
     print(outputs["comparison"].to_string(index=False))
