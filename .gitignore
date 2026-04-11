@@ -45,6 +45,8 @@ Thumbs.db
 data/raw/Appliances.json.gz
 data/interim/
 data/processed/
+outputs/models/hf_cache/
+outputs/models/hf_local/
 
 # Ignore skills + agents file
 skills/*
