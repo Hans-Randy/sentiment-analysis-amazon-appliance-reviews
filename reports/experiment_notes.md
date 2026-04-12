@@ -18,8 +18,8 @@
 - Tuning is now separated from training into `src.tune_logistic_regression.py`, `src.tune_multinomial_nb.py`, and `src.tune_svm.py`.
 - Current best large-dataset tuning results: Linear SVC `C=0.5, tfidf__min_df=2`; Multinomial Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
 - After applying the best tuning results now found under the 70/30 split, the fixed defaults use: Linear SVC `C=0.5, tfidf__min_df=2`; Multinomial Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
-- Current held-out/shared-test metrics on the 18,000-review test split: MLP accuracy `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Logistic Regression `0.8273`.
-- Current full-test lexicon-vs-ML comparison metrics on the large dataset: MLP `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394` accuracy.
+- Current held-out/shared-test metrics on the 18,000-review test split: MLP accuracy `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`.
+- Current full-test lexicon-vs-ML comparison metrics on the large dataset: MLP `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394` accuracy.
 - Phase 2 exploration for the large dataset is saved with `phase2_` prefixes under `outputs/figures/` and `outputs/tables/`.
 - The Phase 2 workflow is now fully step-based: prepare the shared test set once, train ML models separately, test lexicons separately, then aggregate the final comparison from saved metrics on that same held-out test set.
-- Experimental models such as `mlp` and `gradient_boosting` are handled outside the default run and can be trained independently with `src.train_ml --models ...`.
+- Experimental models such as `mlp` and `gradient_boosting` are handled outside the default run and can be trained independently with `src.train_ml --models ...`; `gradient_boosting` is best treated as a slower optional model and is practical to run with `--skip-cv` on local hardware.

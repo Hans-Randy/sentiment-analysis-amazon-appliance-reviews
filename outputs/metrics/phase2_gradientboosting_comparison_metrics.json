@@ -1,0 +1,72 @@
+{
+  "model": "GradientBoosting",
+  "evaluation_scope": "shared_comparison_subset",
+  "subset_metadata": {
+    "source_file": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\raw\\Appliances.json.gz",
+    "train_test_split": "70/30",
+    "train_test_stratify_field": "overall",
+    "random_state": 42,
+    "development_sample_size": 60000,
+    "train_rows": 42000,
+    "test_rows": 18000,
+    "comparison_subset_size_requested": null,
+    "comparison_scope": "full_test_set",
+    "subset": {
+      "subset_name": "phase2_lexicon_comparison_subset",
+      "rows": 18000,
+      "overall_distribution": {
+        "1.0": 1784,
+        "2.0": 621,
+        "3.0": 906,
+        "4.0": 2249,
+        "5.0": 12440
+      },
+      "label_distribution": {
+        "Positive": 14689,
+        "Negative": 2405,
+        "Neutral": 906
+      },
+      "text_hash_sum": 3736137
+    },
+    "subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
+  },
+  "metrics": {
+    "accuracy": 0.8811111111111111,
+    "precision_weighted": 0.8539705798011182,
+    "recall_weighted": 0.8811111111111111,
+    "f1_weighted": 0.856589638721156,
+    "classification_report": {
+      "Negative": {
+        "precision": 0.7618296529968455,
+        "recall": 0.6024948024948025,
+        "f1-score": 0.672858137915022,
+        "support": 2405.0
+      },
+      "Neutral": {
+        "precision": 0.4,
+        "recall": 0.026490066225165563,
+        "f1-score": 0.049689440993788817,
+        "support": 906.0
+      },
+      "Positive": {
+        "precision": 0.8970569896495822,
+        "recall": 0.9794403975764178,
+        "f1-score": 0.9364402642627006,
+        "support": 14689.0
+      },
+      "accuracy": 0.8811111111111111,
+      "macro avg": {
+        "precision": 0.6862955475488093,
+        "recall": 0.5361417554321286,
+        "f1-score": 0.5529959477238372,
+        "support": 18000.0
+      },
+      "weighted avg": {
+        "precision": 0.8539705798011182,
+        "recall": 0.8811111111111111,
+        "f1-score": 0.856589638721156,
+        "support": 18000.0
+      }
+    }
+  }
+}
