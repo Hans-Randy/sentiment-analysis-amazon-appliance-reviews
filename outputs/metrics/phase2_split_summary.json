@@ -38,25 +38,19 @@
   },
   "train_test_split": "70/30",
   "train_test_stratify_field": "overall",
-  "skip_cv": false,
+  "skip_cv": true,
   "random_state": 42,
   "label_mapping": {
     "1-2": "Negative",
     "3": "Neutral",
     "4-5": "Positive"
   },
-  "cross_validation_folds": 3,
+  "cross_validation_folds": 0,
   "ml_models": [
-    "LogisticRegression",
-    "LinearSVC",
-    "MultinomialNB",
-    "MLP"
+    "GradientBoosting"
   ],
   "selected_model_cli_names": [
-    "logistic_regression",
-    "svm",
-    "multinomial_nb",
-    "mlp"
+    "gradient_boosting"
   ],
   "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the same shared held-out test set used later by the lexicon testing script and the final compare_models aggregation step."
 }

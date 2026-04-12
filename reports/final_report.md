@@ -65,7 +65,7 @@ Development workflow:
 - separate per-model hyperparameter tuning scripts for logistic regression, Linear SVC, and Multinomial Naive Bayes
 - lexicon baselines are tested separately on the full held-out `18,000`-review test split so all Phase 2 models use the exact same evaluation data
 - the final comparison table is aggregated afterward from saved machine-learning and lexicon test metrics on that same full shared test set
-- optional experimental models such as MLP and Gradient Boosting can be trained separately without forcing them into every default run
+- optional experimental models such as MLP and Gradient Boosting can be trained separately without forcing them into every default run; Gradient Boosting is slow enough that it is most practical to run as an optional step with `--skip-cv` on local hardware
 
 Text representation:
 
@@ -86,6 +86,7 @@ Held-out ML test results on the shared `18,000`-review development test split:
 | MLP | 0.8988 | 0.8848 |
 | Multinomial Naive Bayes | 0.8931 | 0.8737 |
 | Linear SVC | 0.8824 | 0.8872 |
+| Gradient Boosting | 0.8811 | 0.8566 |
 | Logistic Regression | 0.8273 | 0.8543 |
 
 All-model comparison results on the same shared `18,000`-review Phase 2 test set:
@@ -95,6 +96,7 @@ All-model comparison results on the same shared `18,000`-review Phase 2 test set
 | MLP | 0.8988 | 0.8848 |
 | Multinomial Naive Bayes | 0.8931 | 0.8737 |
 | Linear SVC | 0.8824 | 0.8872 |
+| Gradient Boosting | 0.8811 | 0.8566 |
 | Logistic Regression | 0.8273 | 0.8543 |
 | VADER | 0.7861 | 0.8051 |
 | TextBlob | 0.7414 | 0.7718 |
@@ -111,7 +113,7 @@ Phase 2 takeaway:
 
 - The larger dataset produces a more realistic Phase 2 experiment than the small Phase 1 file.
 - On the full shared test set, the machine-learning baselines outperform the lexicon baselines.
-- MLP is the strongest current Phase 2 model on this development setup, followed closely by Multinomial Naive Bayes and Linear SVC.
+- MLP is the strongest current Phase 2 model on this development setup, followed closely by Multinomial Naive Bayes, Linear SVC, and Gradient Boosting.
 - Hyperparameter tuning is now separated from the normal training pipeline so repeated training runs stay faster and easier to reproduce.
 - The repository now supports a separate lexicon-testing step and a separate aggregation step, so independently trained ML models and tested lexicon baselines can still appear in one final comparison table.
 
