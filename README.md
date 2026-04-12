@@ -51,7 +51,6 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── data_prep.py
 │   ├── evaluate.py
 │   ├── features.py
-│   ├── compare_lexicons.py
 │   ├── compare_models.py
 │   ├── lexicon_baselines.py
 │   ├── llm_review_response.py
@@ -60,6 +59,7 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── phase1_exploration.py
 │   ├── prepare_phase2.py
 │   ├── rating_enhancement.py
+│   ├── test_lexicons.py
 │   ├── tune_gradient_boosting.py
 │   ├── tune_logistic_regression.py
 │   ├── tune_mlp.py
@@ -142,7 +142,7 @@ uv run python -m src.tune_gradient_boosting
 Run the shared lexicon comparison and aggregate all results:
 
 ```bash
-uv run python -m src.compare_lexicons
+uv run python -m src.test_lexicons
 uv run python -m src.compare_models
 ```
 
@@ -164,8 +164,8 @@ Optional selective training examples:
 
 ```bash
 uv run python -m src.train_ml --models logistic_regression svm multinomial_nb
-uv run python -m src.train_ml --models mlp --skip-lexicon
-uv run python -m src.train_ml --include-experimental --skip-lexicon
+uv run python -m src.train_ml --models mlp
+uv run python -m src.train_ml --include-experimental
 uv run python -m src.train_ml --models svm multinomial_nb --skip-cv
 ```
 
@@ -174,14 +174,14 @@ Notes:
 - `uv run python -m src.data_prep` prepares the small Phase 1 dataset from `data/raw/Appliances_5.json.gz`
 - `uv run python -m src.prepare_phase2` prepares the large Phase 2 dataset from `data/raw/Appliances.json.gz` and saves the large-dataset exploration artifacts
 - tuning is now separated from training; review the tuning outputs, then manually promote the chosen parameters into `src.train_ml.py`
-- `uv run python -m src.train_ml` trains and evaluates the Phase 2 baselines using the fixed defaults in `src.train_ml.py`
+- `uv run python -m src.train_ml` trains and evaluates only the selected machine-learning models using the fixed defaults in `src.train_ml.py`
 - Phase 2 now uses a 70/30 train/test split stratified by the raw `overall` rating field
 - `src.model_registry.py` defines default and experimental model pipelines plus their tuning grids
 - experimental models (`mlp`, `gradient_boosting`) are available through selective training and are not part of the default run
 - `src.prepare_phase2.py` now accepts `--sample-size`, `--comparison-size`, `--raw-data-path`, and `--skip-exploration`
 - `src.train_ml.py` now accepts `--skip-cv`, `--test-size`, `--prepared-sample-path`, and `--comparison-subset-path`
-- `uv run python -m src.compare_lexicons` evaluates VADER, TextBlob, and SentiWordNet on the saved shared Phase 2 comparison subset
-- `uv run python -m src.compare_models` merges saved ML and lexicon comparison metrics into the final comparison table and figure
+- `uv run python -m src.test_lexicons` tests VADER, TextBlob, and SentiWordNet on the saved shared held-out Phase 2 test set
+- `uv run python -m src.compare_models` is the only final comparison step; it merges saved ML and lexicon test metrics into the final comparison table and figure
 - `uv run python -m src.rating_enhancement` implements the paper-inspired review-based rating enhancement experiment for Section 15
 - `uv run python -m src.llm_summarize_reviews` generates 10 local-Hugging-Face summaries for Section 16
 - `uv run python -m src.llm_review_response` generates one local-Hugging-Face customer-service style response for Section 17
@@ -207,13 +207,12 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Prepared dataset after duplicate and empty-text filtering: `203` reviews
 - Phase 1 regenerated accuracy: VADER `0.7833`, TextBlob `0.7488`, SentiWordNet `0.7635`
 - Phase 2 source dataset: `data/raw/Appliances.json.gz` with `602,453` rows after empty-text filtering and `591,015` rows after duplicate removal
-- Phase 2 development sample: `60,000` rows; held-out ML test split: `18,000` rows; lexicon comparison subset: `2,000` rows
+- Phase 2 development sample: `60,000` rows; held-out train/test split: `42,000 / 18,000`; the full `18,000` test set is now the shared comparison set for both ML and lexicon models
 - Phase 2 uses TF-IDF because it is a strong, interpretable sparse baseline for large review corpora and works well with linear models and Naive Bayes
-- Phase 2 held-out ML accuracy: Linear SVC `0.8799`, Multinomial Naive Bayes `0.8932`, Logistic Regression `0.8275`
-- Phase 2 shared comparison subset accuracy: Linear SVC `0.8745`, Multinomial Naive Bayes `0.8915`, Logistic Regression `0.8205`, VADER `0.7870`, TextBlob `0.7225`, SentiWordNet `0.7245`
+- Phase 2 held-out/shared-test accuracy: Linear SVC `0.8824`, MLP `0.8988`, Multinomial Naive Bayes `0.8931`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394`
 - Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 - Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
-- Final all-model comparison is built from saved shared-subset metrics so ML models can be trained separately while lexicons remain in the same comparison
+- Final all-model comparison is built from saved metrics on the same full held-out Phase 2 test set so ML models can be trained separately while lexicons remain in the same fair comparison
 - Section 15 artifacts are saved as `outputs/tables/rating_enhancement_*.csv` and `reports/section15_rating_enhancement.md`
 - Section 16 artifacts are saved as `outputs/tables/section16_review_summaries.csv` and `reports/section16_llm_summarization.md`
 - Section 17 artifacts are saved as `outputs/tables/section17_customer_response.csv` and `reports/section17_llm_response.md`
@@ -225,7 +224,7 @@ uv run python -m pytest tests/test_data_pipeline.py
   1. mount Google Drive
   2. place `Appliances.json.gz` in a Drive-backed folder
   3. set env vars such as `PHASE2_DATA_ROOT`, `PHASE2_OUTPUT_ROOT`, `PHASE2_MODELS_ROOT`, and `HF_CACHE_DIR`
-  4. run `uv run python -m src.prepare_phase2 --sample-size <n> --comparison-size <m>`
+  4. run `uv run python -m src.prepare_phase2 --sample-size <n>` to use the full held-out test set as the shared comparison set, or add `--comparison-size <m>` only if you intentionally want a reduced comparison subset
   5. run `uv run python -m src.train_ml --models ... --skip-cv` for heavier experiments
 - Hugging Face helpers automatically use CUDA when available and fall back to CPU otherwise.
 - `gradient_boosting` remains the slowest experimental model even in stronger environments, so it is best treated as an optional run rather than a default baseline.

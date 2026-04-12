@@ -1,66 +1,71 @@
 {
   "model": "textblob",
-  "evaluation_scope": "shared_comparison_subset",
+  "evaluation_scope": "shared_heldout_test_set",
   "subset_metadata": {
-    "source_file": "data\\raw\\Appliances.json.gz",
+    "source_file": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\raw\\Appliances.json.gz",
     "train_test_split": "70/30",
     "train_test_stratify_field": "overall",
     "random_state": 42,
+    "development_sample_size": 60000,
+    "train_rows": 42000,
+    "test_rows": 18000,
+    "comparison_subset_size_requested": null,
+    "comparison_scope": "full_test_set",
     "subset": {
       "subset_name": "phase2_lexicon_comparison_subset",
-      "rows": 2000,
+      "rows": 18000,
       "overall_distribution": {
-        "1.0": 198,
-        "2.0": 69,
-        "3.0": 101,
-        "4.0": 256,
-        "5.0": 1376
+        "1.0": 1784,
+        "2.0": 621,
+        "3.0": 906,
+        "4.0": 2249,
+        "5.0": 12440
       },
       "label_distribution": {
-        "Positive": 1632,
-        "Negative": 267,
-        "Neutral": 101
+        "Positive": 14689,
+        "Negative": 2405,
+        "Neutral": 906
       },
-      "text_hash_sum": 6785662553134306987
+      "text_hash_sum": 3736137
     },
     "subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
   },
   "metrics": {
-    "accuracy": 0.7225,
-    "precision_weighted": 0.8135428358067381,
-    "recall_weighted": 0.7225,
-    "f1_weighted": 0.7574172770651866,
+    "accuracy": 0.7414444444444445,
+    "precision_weighted": 0.827266763592713,
+    "recall_weighted": 0.7414444444444445,
+    "f1_weighted": 0.7717744855980642,
     "classification_report": {
       "Negative": {
-        "precision": 0.553030303030303,
-        "recall": 0.27340823970037453,
-        "f1-score": 0.3659147869674185,
-        "support": 267.0
+        "precision": 0.6007259528130672,
+        "recall": 0.2752598752598753,
+        "f1-score": 0.3775306529797548,
+        "support": 2405.0
       },
       "Neutral": {
-        "precision": 0.07161803713527852,
-        "recall": 0.26732673267326734,
-        "f1-score": 0.11297071129707113,
-        "support": 101.0
+        "precision": 0.09215328467153285,
+        "recall": 0.3344370860927152,
+        "f1-score": 0.14449213161659513,
+        "support": 906.0
       },
       "Positive": {
-        "precision": 0.9020791415157612,
-        "recall": 0.8241421568627451,
-        "f1-score": 0.8613512648094781,
-        "support": 1632.0
+        "precision": 0.9096987509184423,
+        "recall": 0.8428756212131527,
+        "f1-score": 0.8750132513516379,
+        "support": 14689.0
       },
-      "accuracy": 0.7225,
+      "accuracy": 0.7414444444444445,
       "macro avg": {
-        "precision": 0.5089091605604475,
-        "recall": 0.4549590430787956,
-        "f1-score": 0.4467455876913226,
-        "support": 2000.0
+        "precision": 0.5341926628010141,
+        "recall": 0.4841908608552477,
+        "f1-score": 0.4656786786493292,
+        "support": 18000.0
       },
       "weighted avg": {
-        "precision": 0.8135428358067381,
-        "recall": 0.7225,
-        "f1-score": 0.7574172770651866,
-        "support": 2000.0
+        "precision": 0.827266763592713,
+        "recall": 0.7414444444444445,
+        "f1-score": 0.7717744855980642,
+        "support": 18000.0
       }
     }
   }

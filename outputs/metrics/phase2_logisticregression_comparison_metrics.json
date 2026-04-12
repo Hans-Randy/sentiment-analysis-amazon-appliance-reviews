@@ -2,65 +2,70 @@
   "model": "LogisticRegression",
   "evaluation_scope": "shared_comparison_subset",
   "subset_metadata": {
-    "source_file": "data\\raw\\Appliances.json.gz",
+    "source_file": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\raw\\Appliances.json.gz",
     "train_test_split": "70/30",
     "train_test_stratify_field": "overall",
     "random_state": 42,
+    "development_sample_size": 60000,
+    "train_rows": 42000,
+    "test_rows": 18000,
+    "comparison_subset_size_requested": null,
+    "comparison_scope": "full_test_set",
     "subset": {
       "subset_name": "phase2_lexicon_comparison_subset",
-      "rows": 2000,
+      "rows": 18000,
       "overall_distribution": {
-        "1.0": 198,
-        "2.0": 69,
-        "3.0": 101,
-        "4.0": 256,
-        "5.0": 1376
+        "1.0": 1784,
+        "2.0": 621,
+        "3.0": 906,
+        "4.0": 2249,
+        "5.0": 12440
       },
       "label_distribution": {
-        "Positive": 1632,
-        "Negative": 267,
-        "Neutral": 101
+        "Positive": 14689,
+        "Negative": 2405,
+        "Neutral": 906
       },
-      "text_hash_sum": 6785662553134306987
+      "text_hash_sum": 3736137
     },
     "subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
   },
   "metrics": {
-    "accuracy": 0.8205,
-    "precision_weighted": 0.892179106999082,
-    "recall_weighted": 0.8205,
-    "f1_weighted": 0.8493952480302327,
+    "accuracy": 0.8272777777777778,
+    "precision_weighted": 0.8947131800420739,
+    "recall_weighted": 0.8272777777777778,
+    "f1_weighted": 0.8543349436215149,
     "classification_report": {
       "Negative": {
-        "precision": 0.6977491961414791,
-        "recall": 0.8127340823970037,
-        "f1-score": 0.7508650519031141,
-        "support": 267.0
+        "precision": 0.6782106782106783,
+        "recall": 0.7817047817047817,
+        "f1-score": 0.7262893567703304,
+        "support": 2405.0
       },
       "Neutral": {
-        "precision": 0.16287878787878787,
-        "recall": 0.42574257425742573,
-        "f1-score": 0.2356164383561644,
-        "support": 101.0
+        "precision": 0.18394793926247288,
+        "recall": 0.46799116997792495,
+        "f1-score": 0.2640921831205232,
+        "support": 906.0
       },
       "Positive": {
-        "precision": 0.9691228070175438,
-        "recall": 0.8462009803921569,
-        "f1-score": 0.9035001635590448,
-        "support": 1632.0
+        "precision": 0.973999845237174,
+        "recall": 0.8568997208795698,
+        "f1-score": 0.9117050557728524,
+        "support": 14689.0
       },
-      "accuracy": 0.8205,
+      "accuracy": 0.8272777777777778,
       "macro avg": {
-        "precision": 0.609916930345937,
-        "recall": 0.6948925456821954,
-        "f1-score": 0.6299938846061078,
-        "support": 2000.0
+        "precision": 0.6120528209034417,
+        "recall": 0.7021985575207589,
+        "f1-score": 0.6340288652212354,
+        "support": 18000.0
       },
       "weighted avg": {
-        "precision": 0.892179106999082,
-        "recall": 0.8205,
-        "f1-score": 0.8493952480302327,
-        "support": 2000.0
+        "precision": 0.8947131800420739,
+        "recall": 0.8272777777777778,
+        "f1-score": 0.8543349436215149,
+        "support": 18000.0
       }
     }
   }

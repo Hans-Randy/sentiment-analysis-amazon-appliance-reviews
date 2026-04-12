@@ -20,7 +20,6 @@ from src.evaluate import (
     metrics_row,
     save_confusion_matrix,
 )
-from src.lexicon_baselines import run_lexicon_models
 from src.model_registry import (
     MODEL_SPECS,
     build_selected_pipelines,
@@ -65,11 +64,6 @@ def parse_args() -> argparse.Namespace:
         "--include-experimental",
         action="store_true",
         help="Train default models plus experimental models.",
-    )
-    parser.add_argument(
-        "--skip-lexicon",
-        action="store_true",
-        help="Skip lexicon comparison step for faster runs.",
     )
     parser.add_argument(
         "--skip-cv",
@@ -272,7 +266,6 @@ def save_ml_comparison_outputs(
 
 def run_ml_pipeline(
     selected_names: list[str] | None = None,
-    skip_lexicon: bool = False,
     skip_cv: bool = False,
     test_size: float = 0.3,
     prepared_sample_path: str | None = None,
@@ -330,29 +323,7 @@ def run_ml_pipeline(
         comparison_subset_metadata,
     )
     lexicon_subset_size = int(len(comparison_subset_df))
-    if not skip_lexicon:
-        lexicon_test_results, _, lexicon_metrics = run_lexicon_models(
-            comparison_subset_df.reset_index(drop=True)
-        )
-        comparison_df = pd.concat(
-            [
-                comparison_df,
-                pd.DataFrame(
-                    [
-                        metrics_row("VADER", lexicon_metrics["vader"]),
-                        metrics_row("TextBlob", lexicon_metrics["textblob"]),
-                        metrics_row("SentiWordNet", lexicon_metrics["sentiwordnet"]),
-                    ]
-                ),
-            ],
-            ignore_index=True,
-        ).sort_values(by=["f1_weighted", "accuracy"], ascending=False)
-        comparison_df.to_csv(TABLES_DIR / "phase2_model_comparison.csv", index=False)
-        lexicon_test_results.to_csv(
-            PREDICTIONS_DIR / "phase2_test_lexicon_predictions.csv", index=False
-        )
-    else:
-        comparison_df.to_csv(TABLES_DIR / "phase2_model_comparison.csv", index=False)
+    comparison_df.to_csv(TABLES_DIR / "phase2_ml_comparison_summary.csv", index=False)
 
     write_json(
         {
@@ -375,7 +346,7 @@ def run_ml_pipeline(
             "cross_validation_folds": 0 if skip_cv else 3,
             "ml_models": [MODEL_SPECS[name].display_name for name in resolved_names],
             "selected_model_cli_names": resolved_names,
-            "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the shared comparison subset, and phase2_model_comparison.csv includes lexicon baselines when lexicon comparison is enabled.",
+            "comparison_note": "ML metrics in phase2_ml_model_summary.csv are on the full held-out development test split. Per-model comparison metrics are saved from the same shared held-out test set used later by the lexicon testing script and the final compare_models aggregation step.",
         },
         METRICS_DIR / "phase2_split_summary.json",
     )
@@ -393,7 +364,6 @@ if __name__ == "__main__":
     model_names = selected_cli_names(args)
     outputs = run_ml_pipeline(
         model_names,
-        skip_lexicon=args.skip_lexicon,
         skip_cv=args.skip_cv,
         test_size=args.test_size,
         prepared_sample_path=args.prepared_sample_path,

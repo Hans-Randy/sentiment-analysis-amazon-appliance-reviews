@@ -12,24 +12,24 @@ from src.utils import ensure_directories, write_json
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run lexicon comparison on the shared Phase 2 subset."
+        description="Test lexicon models on the shared Phase 2 held-out test set."
     )
     parser.add_argument(
         "--subset-path",
         type=str,
         default=None,
-        help="Optional path to a saved shared comparison subset CSV.",
+        help="Optional path to a saved shared evaluation-set CSV.",
     )
     parser.add_argument(
         "--metadata-path",
         type=str,
         default=None,
-        help="Optional path to comparison subset metadata JSON.",
+        help="Optional path to evaluation-set metadata JSON.",
     )
     return parser.parse_args()
 
 
-def load_comparison_subset(
+def load_evaluation_set(
     subset_path: str | None = None,
     metadata_path: str | None = None,
 ) -> tuple[pd.DataFrame, dict]:
@@ -45,7 +45,7 @@ def load_comparison_subset(
     )
     if not resolved_subset_path.exists() or not resolved_metadata_path.exists():
         raise FileNotFoundError(
-            "Phase 2 comparison subset artifacts were not found. Run `uv run python -m src.prepare_phase2` first."
+            "Phase 2 shared test-set artifacts were not found. Run `uv run python -m src.prepare_phase2` first."
         )
     subset_df = pd.read_csv(resolved_subset_path, low_memory=False)
     metadata = json.loads(resolved_metadata_path.read_text(encoding="utf-8"))
@@ -55,7 +55,7 @@ def load_comparison_subset(
 def main() -> None:
     args = parse_args()
     ensure_directories([FIGURES_DIR, METRICS_DIR, PREDICTIONS_DIR, TABLES_DIR])
-    subset_df, subset_metadata = load_comparison_subset(
+    subset_df, subset_metadata = load_evaluation_set(
         args.subset_path, args.metadata_path
     )
     results_df, summary_df, metrics_by_model = run_lexicon_models(subset_df)
@@ -63,7 +63,7 @@ def main() -> None:
     results_df.to_csv(
         PREDICTIONS_DIR / "phase2_test_lexicon_predictions.csv", index=False
     )
-    summary_df.to_csv(TABLES_DIR / "phase2_lexicon_comparison_summary.csv", index=False)
+    summary_df.to_csv(TABLES_DIR / "phase2_lexicon_test_summary.csv", index=False)
 
     for key, metrics in metrics_by_model.items():
         prediction_column = f"{key}_pred"
@@ -77,7 +77,7 @@ def main() -> None:
         write_json(
             {
                 "model": key,
-                "evaluation_scope": "shared_comparison_subset",
+                "evaluation_scope": "shared_heldout_test_set",
                 "subset_metadata": subset_metadata,
                 "metrics": metrics,
             },
@@ -86,11 +86,11 @@ def main() -> None:
         save_confusion_matrix(
             results_df["label"],
             results_df[prediction_column],
-            f"Phase 2 {key.title()} Comparison Confusion Matrix",
+            f"Phase 2 {key.title()} Test Confusion Matrix",
             FIGURES_DIR / f"phase2_{key}_comparison_confusion_matrix.png",
         )
 
-    print("Phase 2 lexicon comparison complete.")
+    print("Phase 2 lexicon testing complete.")
     print(summary_df.to_string(index=False))
 
 

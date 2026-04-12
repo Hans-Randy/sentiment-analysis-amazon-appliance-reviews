@@ -3,12 +3,10 @@ from pathlib import Path
 from typing import cast
 
 import pandas as pd
-from pandas.util import hash_pandas_object
 from sklearn.model_selection import train_test_split
 
 from src.config import (
     DEFAULT_PHASE2_DEV_SAMPLE_SIZE,
-    DEFAULT_PHASE2_LEXICON_COMPARISON_SAMPLE_SIZE,
     DEFAULT_RANDOM_STATE,
     LARGE_RAW_REVIEW_FILE,
     METRICS_DIR,
@@ -37,8 +35,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--comparison-size",
         type=int,
-        default=DEFAULT_PHASE2_LEXICON_COMPARISON_SAMPLE_SIZE,
-        help="Shared comparison subset size for lexicon-vs-ML evaluation.",
+        default=None,
+        help="Optional reduced shared comparison size. By default the full held-out test set is used for lexicon-vs-ML comparison.",
     )
     parser.add_argument(
         "--raw-data-path",
@@ -55,6 +53,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def build_subset_metadata(df: pd.DataFrame, subset_name: str) -> dict:
+    text_lengths = pd.Series(df["text"], dtype="string").fillna("").str.len()
     return {
         "subset_name": subset_name,
         "rows": int(len(df)),
@@ -70,7 +69,7 @@ def build_subset_metadata(df: pd.DataFrame, subset_name: str) -> dict:
             key: int(value)
             for key, value in df["label"].value_counts().to_dict().items()
         },
-        "text_hash_sum": int(hash_pandas_object(df["text"], index=False).sum()),
+        "text_hash_sum": int(text_lengths.sum()),
     }
 
 
@@ -132,9 +131,9 @@ def build_development_sample(
 
 
 def build_lexicon_comparison_subset(
-    test_df: pd.DataFrame, comparison_size: int
+    test_df: pd.DataFrame, comparison_size: int | None
 ) -> pd.DataFrame:
-    if len(test_df) <= comparison_size:
+    if comparison_size is None or len(test_df) <= comparison_size:
         return test_df.reset_index(drop=True)
     lexicon_subset_df, _ = cast(
         tuple[pd.DataFrame, pd.DataFrame],
@@ -150,7 +149,7 @@ def build_lexicon_comparison_subset(
 
 def prepare_phase2_artifacts(
     sample_size: int = DEFAULT_PHASE2_DEV_SAMPLE_SIZE,
-    comparison_size: int = DEFAULT_PHASE2_LEXICON_COMPARISON_SAMPLE_SIZE,
+    comparison_size: int | None = None,
     raw_data_path: str | None = None,
     skip_exploration: bool = False,
 ) -> dict:
@@ -184,7 +183,14 @@ def prepare_phase2_artifacts(
         "train_test_stratify_field": "overall",
         "random_state": DEFAULT_RANDOM_STATE,
         "development_sample_size": int(sample_size),
-        "comparison_subset_size": int(comparison_size),
+        "train_rows": int(len(development_df) - len(test_df)),
+        "test_rows": int(len(test_df)),
+        "comparison_subset_size_requested": None
+        if comparison_size is None
+        else int(comparison_size),
+        "comparison_scope": "full_test_set"
+        if comparison_size is None
+        else "reduced_test_subset",
         "subset": build_subset_metadata(
             comparison_subset_df, "phase2_lexicon_comparison_subset"
         ),
@@ -200,7 +206,14 @@ def prepare_phase2_artifacts(
             **profile,
             "development_sample_rows": int(len(development_df)),
             "development_sample_size_requested": int(sample_size),
-            "comparison_subset_size_requested": int(comparison_size),
+            "train_rows": int(len(development_df) - len(test_df)),
+            "test_rows": int(len(test_df)),
+            "comparison_subset_size_requested": None
+            if comparison_size is None
+            else int(comparison_size),
+            "comparison_scope": "full_test_set"
+            if comparison_size is None
+            else "reduced_test_subset",
             "saved_prepared_paths": [str(path) for path in saved_paths],
             "saved_development_paths": [str(path) for path in development_paths],
             "saved_comparison_subset_path": str(comparison_subset_path),

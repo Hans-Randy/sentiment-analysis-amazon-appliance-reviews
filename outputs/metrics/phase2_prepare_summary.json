@@ -1,5 +1,5 @@
 {
-  "source_file": "data\\raw\\Appliances.json.gz",
+  "source_file": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\raw\\Appliances.json.gz",
   "raw_rows_after_empty_text_filter": 602453,
   "prepared_rows": 591015,
   "duplicate_rows_removed": 11438,
@@ -23,6 +23,11 @@
   "duplicate_policy": "Drop exact duplicates by reviewerID, asin, and reviewText.",
   "random_state": 42,
   "development_sample_rows": 60000,
+  "development_sample_size_requested": 60000,
+  "train_rows": 42000,
+  "test_rows": 18000,
+  "comparison_subset_size_requested": null,
+  "comparison_scope": "full_test_set",
   "saved_prepared_paths": [
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\interim\\amazon_appliances_large_reviews_prepared.csv",
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\processed\\amazon_appliances_large_reviews_labeled.csv"
@@ -31,5 +36,6 @@
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\interim\\amazon_appliances_large_phase2_development_sample_prepared.csv",
     "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\data\\processed\\amazon_appliances_large_phase2_development_sample_labeled.csv"
   ],
-  "saved_comparison_subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
+  "saved_comparison_subset_path": "C:\\Users\\hansr\\Dev\\python_projects\\natural_language_processing\\sentiment_analysis_amazon_appliance_reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv",
+  "skip_exploration": false
 }
