@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Fail if any expected lexicon comparison files are missing.",
+        help="Fail if any expected lexicon test metric files are missing.",
     )
     return parser.parse_args()
 
@@ -95,7 +95,7 @@ def main() -> None:
         missing = sorted(str(path.name) for path in required if not path.exists())
         if missing:
             raise FileNotFoundError(
-                f"Missing required comparison metric files: {', '.join(missing)}"
+                f"Missing required lexicon test metric files: {', '.join(missing)}"
             )
     payloads = [load_metric_file(path) for path in metric_paths]
     subset_metadata = validate_subset_metadata(payloads)
@@ -107,7 +107,7 @@ def main() -> None:
     (METRICS_DIR / "phase2_model_comparison_metadata.json").write_text(
         json.dumps(subset_metadata, indent=2), encoding="utf-8"
     )
-    print("Phase 2 model comparison aggregation complete.")
+    print("Phase 2 all-model comparison aggregation complete.")
     print(comparison_df.to_string(index=False))
 
 

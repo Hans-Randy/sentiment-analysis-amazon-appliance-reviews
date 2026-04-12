@@ -63,8 +63,8 @@ Development workflow:
 - stratified train/test split from the development sample using the raw `overall` rating field: `42,000` train, `18,000` test
 - 3-fold cross-validation on the training split
 - separate per-model hyperparameter tuning scripts for logistic regression, Linear SVC, and Multinomial Naive Bayes
-- lexicon baselines evaluated on a shared stratified `2,000`-review comparison subset from the large-dataset test split
-- the final comparison table is aggregated from saved per-model comparison metrics so ML models can be trained independently while preserving the same lexicon comparison subset
+- lexicon baselines are tested separately on the full held-out `18,000`-review test split so all Phase 2 models use the exact same evaluation data
+- the final comparison table is aggregated afterward from saved machine-learning and lexicon test metrics on that same full shared test set
 - optional experimental models such as MLP and Gradient Boosting can be trained separately without forcing them into every default run
 
 Text representation:
@@ -79,24 +79,26 @@ Cross-validation summary:
 | Multinomial Naive Bayes | 0.8731 |
 | Logistic Regression | 0.8538 |
 
-Held-out ML test results on the `18,000`-review development test split:
+Held-out ML test results on the shared `18,000`-review development test split:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8932 | 0.8736 |
-| Linear SVC | 0.8799 | 0.8840 |
-| Logistic Regression | 0.8275 | 0.8534 |
+| MLP | 0.8988 | 0.8848 |
+| Multinomial Naive Bayes | 0.8931 | 0.8737 |
+| Linear SVC | 0.8824 | 0.8872 |
+| Logistic Regression | 0.8273 | 0.8543 |
 
-Shared comparison-subset results on the `2,000`-review lexicon comparison subset:
+All-model comparison results on the same shared `18,000`-review Phase 2 test set:
 
 | Model | Accuracy | Weighted F1 |
 | --- | ---: | ---: |
-| Multinomial Naive Bayes | 0.8915 | 0.8728 |
-| Linear SVC | 0.8745 | 0.8801 |
-| Logistic Regression | 0.8205 | 0.8494 |
-| VADER | 0.7870 | 0.8052 |
-| TextBlob | 0.7225 | 0.7574 |
-| SentiWordNet | 0.7245 | 0.7527 |
+| MLP | 0.8988 | 0.8848 |
+| Multinomial Naive Bayes | 0.8931 | 0.8737 |
+| Linear SVC | 0.8824 | 0.8872 |
+| Logistic Regression | 0.8273 | 0.8543 |
+| VADER | 0.7861 | 0.8051 |
+| TextBlob | 0.7414 | 0.7718 |
+| SentiWordNet | 0.7394 | 0.7649 |
 
 Model evaluation details:
 
@@ -108,10 +110,10 @@ Model evaluation details:
 Phase 2 takeaway:
 
 - The larger dataset produces a more realistic Phase 2 experiment than the small Phase 1 file.
-- On the shared comparison subset, the ML baselines outperform the lexicon baselines.
-- Multinomial Naive Bayes is the strongest current Phase 2 baseline on this development setup, followed by Linear SVC.
+- On the full shared test set, the machine-learning baselines outperform the lexicon baselines.
+- MLP is the strongest current Phase 2 model on this development setup, followed closely by Multinomial Naive Bayes and Linear SVC.
 - Hyperparameter tuning is now separated from the normal training pipeline so repeated training runs stay faster and easier to reproduce.
-- The repository now supports a separate aggregation step so independently trained models and lexicon baselines can still appear in one final comparison table.
+- The repository now supports a separate lexicon-testing step and a separate aggregation step, so independently trained ML models and tested lexicon baselines can still appear in one final comparison table.
 
 ## Artifacts
 
