@@ -95,15 +95,16 @@ def build_gradient_boosting_pipeline() -> Pipeline:
         steps=[
             (
                 "tfidf",
-                build_tfidf_vectorizer().set_params(min_df=2, max_features=12000),
+                build_tfidf_vectorizer().set_params(min_df=2, max_features=20000),
             ),
-            ("svd", TruncatedSVD(n_components=200, random_state=DEFAULT_RANDOM_STATE)),
+            ("svd", TruncatedSVD(n_components=300, random_state=DEFAULT_RANDOM_STATE)),
             (
                 "classifier",
                 GradientBoostingClassifier(
-                    n_estimators=100,
-                    learning_rate=0.1,
-                    max_depth=3,
+                    n_estimators=300,
+                    learning_rate=0.05,
+                    max_depth=4,
+                    subsample=0.8,
                     random_state=DEFAULT_RANDOM_STATE,
                 ),
             ),
@@ -155,9 +156,11 @@ MODEL_SPECS: dict[str, ModelSpec] = {
         is_default=False,
         builder=build_gradient_boosting_pipeline,
         param_grid={
-            "svd__n_components": [100, 200],
-            "classifier__n_estimators": [100, 150],
-            "classifier__learning_rate": [0.05, 0.1],
+            "svd__n_components": [200, 300],
+            "classifier__n_estimators": [200, 300],
+            "classifier__learning_rate": [0.03, 0.05],
+            "classifier__max_depth": [3, 4],
+            "classifier__subsample": [0.8, 1.0],
         },
     ),
 }
