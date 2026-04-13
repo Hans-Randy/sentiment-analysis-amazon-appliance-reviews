@@ -51,27 +51,34 @@ def save_confusion_matrix(
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     matrix = confusion_matrix(y_true, y_pred, labels=LABEL_ORDER)
-    fig, axis = plt.subplots(figsize=(5, 4))
+    fig, axis = plt.subplots(figsize=(7, 5.5))
     image = axis.imshow(matrix, cmap="Blues")
     axis.set_xticks(range(len(LABEL_ORDER)))
     axis.set_yticks(range(len(LABEL_ORDER)))
-    axis.set_xticklabels(LABEL_ORDER, rotation=20)
+    axis.set_xticklabels(LABEL_ORDER, rotation=15)
     axis.set_yticklabels(LABEL_ORDER)
     axis.set_xlabel("Predicted")
     axis.set_ylabel("Actual")
     axis.set_title(title)
 
+    threshold = matrix.max() * 0.5 if matrix.size else 0
+
     for row_index in range(matrix.shape[0]):
         for col_index in range(matrix.shape[1]):
+            value = matrix[row_index, col_index]
+            text_color = "white" if value > threshold else "black"
             axis.text(
                 col_index,
                 row_index,
-                matrix[row_index, col_index],
+                value,
                 ha="center",
                 va="center",
+                color=text_color,
+                fontsize=12,
+                fontweight="bold",
             )
 
     fig.colorbar(image, ax=axis)
     fig.tight_layout()
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=220, bbox_inches="tight")
     plt.close(fig)
