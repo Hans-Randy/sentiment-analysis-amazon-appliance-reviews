@@ -35,16 +35,35 @@ def collect_comparison_metric_paths(metrics_dir: Path) -> list[Path]:
     return sorted(metrics_dir.glob("phase2_*_comparison_metrics.json"))
 
 
+_PATH_KEYS = {"source_file", "subset_path"}
+
+
+def _subset_fingerprint(metadata: dict) -> str:
+    """Serialize metadata fields that identify the subset, excluding machine-specific paths."""
+    subset = metadata.get("subset", {})
+    fingerprint = {
+        "random_state": metadata.get("random_state"),
+        "development_sample_size": metadata.get("development_sample_size"),
+        "train_rows": metadata.get("train_rows"),
+        "test_rows": metadata.get("test_rows"),
+        "train_test_split": metadata.get("train_test_split"),
+        "comparison_scope": metadata.get("comparison_scope"),
+        "comparison_subset_size_requested": metadata.get("comparison_subset_size_requested"),
+        "subset_name": subset.get("subset_name"),
+        "subset_rows": subset.get("rows"),
+        "text_hash_sum": subset.get("text_hash_sum"),
+        "label_distribution": subset.get("label_distribution"),
+    }
+    return json.dumps(fingerprint, sort_keys=True)
+
+
 def validate_subset_metadata(metric_payloads: list[dict]) -> dict:
     if not metric_payloads:
         raise ValueError("No comparison metric files were found.")
     reference_metadata = metric_payloads[0]["subset_metadata"]
-    reference_serialized = json.dumps(reference_metadata, sort_keys=True)
+    reference_fingerprint = _subset_fingerprint(reference_metadata)
     for payload in metric_payloads[1:]:
-        if (
-            json.dumps(payload["subset_metadata"], sort_keys=True)
-            != reference_serialized
-        ):
+        if _subset_fingerprint(payload["subset_metadata"]) != reference_fingerprint:
             raise ValueError(
                 "Comparison metric files do not reference the same evaluation subset."
             )

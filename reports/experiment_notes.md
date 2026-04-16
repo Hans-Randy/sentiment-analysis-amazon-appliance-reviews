@@ -1,7 +1,7 @@
 # Experiment Notes
 
 - Phase 1 compares three lexicon baselines: VADER, TextBlob, and SentiWordNet.
-- Phase 2 starts with simple TF-IDF baselines: logistic regression, Linear SVC, and Multinomial Naive Bayes.
+- Phase 2 starts with simple TF-IDF baselines: logistic regression, Linear SVC, and Complement Naive Bayes.
 - Labels are derived from ratings with an explicit mapping: 1-2 stars -> Negative, 3 stars -> Neutral, 4-5 stars -> Positive.
 - The reproducible preparation pipeline removes exact duplicates by `reviewerID`, `asin`, and `reviewText`, removes empty review text, and combines `summary` with `reviewText` into a single `text` field.
 - Generated metrics, predictions, and figures are saved under `outputs/`.
@@ -14,12 +14,12 @@
 - Phase 2 now uses a `70/30` train/test split stratified by the raw `overall` rating field to match the assignment requirement more closely.
 - The report now explicitly justifies the preprocessing steps and TF-IDF representation choice.
 - The Phase 2 pipeline now also saves a 3-fold cross-validation summary for the ML baselines to `outputs/tables/phase2_cross_validation_summary.csv`.
-- Current cross-validation ranking on the large-dataset training split: Linear SVC `0.8839` weighted F1 mean, Multinomial Naive Bayes `0.8731`, Logistic Regression `0.8538`.
-- Tuning is now separated from training into `src.tune_logistic_regression.py`, `src.tune_multinomial_nb.py`, and `src.tune_svm.py`.
-- Current best large-dataset tuning results: Linear SVC `C=0.5, tfidf__min_df=2`; Multinomial Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
-- After applying the best tuning results now found under the 70/30 split, the fixed defaults use: Linear SVC `C=0.5, tfidf__min_df=2`; Multinomial Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
-- Current held-out/shared-test metrics on the 18,000-review test split: MLP accuracy `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`.
-- Current full-test lexicon-vs-ML comparison metrics on the large dataset: MLP `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394` accuracy.
+- Current cross-validation ranking on the large-dataset training split: Linear SVC `0.8839` weighted F1 mean, Complement Naive Bayes `0.8731`, Logistic Regression `0.8538`.
+- Tuning is now separated from training into `src.tune_logistic_regression.py`, `src.tune_complement_nb.py`, and `src.tune_svm.py`.
+- Current best large-dataset tuning results: Linear SVC `C=0.5, tfidf__min_df=2`; Complement Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
+- After applying the best tuning results now found under the 70/30 split, the fixed defaults use: Linear SVC `C=0.5, tfidf__min_df=2`; Complement Naive Bayes `alpha=0.1, tfidf__min_df=2`; Logistic Regression `C=2.0, tfidf__min_df=1`.
+- Current held-out/shared-test metrics on the 18,000-review test split: MLP accuracy `0.8988`, Complement Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`.
+- Current full-test lexicon-vs-ML comparison metrics on the large dataset: MLP `0.8988`, Complement Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8811`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394` accuracy.
 - Phase 2 exploration for the large dataset is saved with `phase2_` prefixes under `outputs/figures/` and `outputs/tables/`.
 - The Phase 2 workflow is now fully step-based: prepare the shared test set once, train ML models separately, test lexicons separately, then aggregate the final comparison from saved metrics on that same held-out test set.
 - Experimental models such as `mlp` and `gradient_boosting` are handled outside the default run and can be trained independently with `src.train_ml --models ...`; `gradient_boosting` is best treated as a slower optional model and is practical to run with `--skip-cv` on local hardware.

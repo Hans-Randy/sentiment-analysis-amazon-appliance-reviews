@@ -77,31 +77,31 @@ select and discuss the best setting
 
 | alpha | mae | rmse | enhanced_mean | enhanced_std |
 | --- | --- | --- | --- | --- |
-| 0.0 | 0.6667 | 0.8103 | 4.0421 | 0.8816 |
-| 0.9 | 0.0667 | 0.081 | 4.2512 | 1.245 |
-| 0.8 | 0.1333 | 0.1621 | 4.228 | 1.1899 |
-| 0.7 | 0.2 | 0.2431 | 4.2047 | 1.1375 |
-| 0.6 | 0.2667 | 0.3241 | 4.1815 | 1.0881 |
+| 0.0 | 0.6664 | 0.8106 | 4.0311 | 0.8959 |
+| 0.9 | 0.0666 | 0.0811 | 4.2501 | 1.2462 |
+| 0.8 | 0.1333 | 0.1621 | 4.2258 | 1.1924 |
+| 0.7 | 0.1999 | 0.2432 | 4.2014 | 1.1413 |
+| 0.6 | 0.2666 | 0.3243 | 4.1771 | 1.0933 |
 
 ### Distribution Comparison Using Best Alpha (0.9)
 
 | Rating | Original | Inferred | Enhanced |
 | --- | ---: | ---: | ---: |
 | 1.0 | 58579 | 0 | 58579 |
-| 2.0 | 20389 | 66042 | 20389 |
-| 3.0 | 29744 | 31003 | 29744 |
-| 4.0 | 73848 | 493970 | 73848 |
+| 2.0 | 20389 | 68291 | 20389 |
+| 3.0 | 29744 | 31456 | 29744 |
+| 4.0 | 73848 | 491268 | 73848 |
 | 5.0 | 408455 | 0 | 408455 |
 
 ### Example Rows
 
 | dataset_index | text_excerpt | original_rating | inferred_label | inferred_rating | enhanced_rating |
 | --- | --- | --- | --- | --- | --- |
-| 139323 | Saved by the "stat.". Product fit refrigerator perfectly with only a few minor adjustments. It took only a few minutes to install. The refrigerator is now working perfectly and ... | 1.0 | Positive | 4.5 | 1.35 |
 | 279832 | Perfect fit. Most Excellent Product and Service. Perfect fit. Most Excellent Product and Service!!! Thank You | 1.0 | Positive | 4.5 | 1.35 |
-| 327639 | ... thinks this image is too scary - and she love horror films - go figure. My wife thinks this image is too scary - and she love horror films - go figure.... | 1.0 | Positive | 4.5 | 1.35 |
-| 310767 | Just as described. This kit worked perfectly. | 1.0 | Positive | 4.5 | 1.35 |
-| 332538 | We were totally amazed!. Yes, it was exactly what we needed! It came quickly. We were totally amazed! | 1.0 | Positive | 4.5 | 1.35 |
+| 111111 | Works perfectly and I am very pleased. And the cost is awesome compared to the .... Works perfectly and I am very pleased. And the cost is awesome compared to the name brand!!! ... | 1.0 | Positive | 4.5 | 1.35 |
+| 171334 | Worked Great!. Worked like a charm. Saved a lot of money although I had to call a third party to install it. Still saved money on parts. | 1.0 | Positive | 4.5 | 1.35 |
+| 565333 | OUCH. WORKS VERY NICE. WIFE IS PLEASED. EASY YO CLEAN ETC. FAILED AFTER 2 YEARS. GET WARRANTEE. | 1.0 | Positive | 4.5 | 1.35 |
+| 585567 | These are great, have one in every room. These are great, have one in every room. I can keep my thetmostat a little higher, and be confident that individual rooms are a few degr... | 1.0 | Positive | 4.5 | 1.35 |
 
 ## Conclusion
 

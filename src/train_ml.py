@@ -58,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--models",
         nargs="+",
-        help="Model CLI names to train, for example: logistic_regression svm multinomial_nb mlp",
+        help="Model CLI names to train, for example: logistic_regression svm complement_nb mlp",
     )
     parser.add_argument(
         "--include-experimental",

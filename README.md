@@ -63,7 +63,7 @@ sentiment_analysis_amazon_appliance_reviews/
 │   ├── tune_gradient_boosting.py
 │   ├── tune_logistic_regression.py
 │   ├── tune_mlp.py
-│   ├── tune_multinomial_nb.py
+│   ├── tune_complement_nb.py
 │   ├── tune_svm.py
 │   ├── tune_utils.py
 │   ├── train_ml.py
@@ -133,7 +133,7 @@ Tune Phase 2 models when needed:
 
 ```bash
 uv run python -m src.tune_logistic_regression
-uv run python -m src.tune_multinomial_nb
+uv run python -m src.tune_complement_nb
 uv run python -m src.tune_svm
 uv run python -m src.tune_mlp
 uv run python -m src.tune_gradient_boosting
@@ -163,10 +163,10 @@ uv run python -m src.train_ml
 Optional selective training examples:
 
 ```bash
-uv run python -m src.train_ml --models logistic_regression svm multinomial_nb
+uv run python -m src.train_ml --models logistic_regression svm complement_nb
 uv run python -m src.train_ml --models mlp
 uv run python -m src.train_ml --include-experimental
-uv run python -m src.train_ml --models svm multinomial_nb --skip-cv
+uv run python -m src.train_ml --models svm complement_nb --skip-cv
 ```
 
 Notes:
@@ -209,7 +209,7 @@ uv run python -m pytest tests/test_data_pipeline.py
 - Phase 2 source dataset: `data/raw/Appliances.json.gz` with `602,453` rows after empty-text filtering and `591,015` rows after duplicate removal
 - Phase 2 development sample: `60,000` rows; held-out train/test split: `42,000 / 18,000`; the full `18,000` test set is now the shared comparison set for both ML and lexicon models
 - Phase 2 uses TF-IDF because it is a strong, interpretable sparse baseline for large review corpora and works well with linear models and Naive Bayes
-- Phase 2 held-out/shared-test accuracy: MLP `0.8988`, Multinomial Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8904`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394`
+- Phase 2 held-out/shared-test accuracy: MLP `0.8988`, Complement Naive Bayes `0.8931`, Linear SVC `0.8824`, Gradient Boosting `0.8904`, Logistic Regression `0.8273`, VADER `0.7861`, TextBlob `0.7414`, SentiWordNet `0.7394`
 - Phase 2 cross-validation, exploration, error analysis, and prediction distribution tables are saved under `outputs/tables/` and `outputs/figures/`
 - Per-model tuning outputs are saved as `outputs/tables/tuning_*.csv` and `outputs/metrics/tuning_*.json`
 - Final all-model comparison is built from saved metrics on the same full held-out Phase 2 test set so ML models can be trained separately while lexicons remain in the same fair comparison

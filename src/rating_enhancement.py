@@ -17,7 +17,7 @@ def load_best_sentiment_model():
     """Load the strongest existing repo model that supports text inference."""
     candidate_paths = [
         MODELS_DIR / "phase2_mlp.joblib",
-        MODELS_DIR / "phase2_multinomialnb.joblib",
+        MODELS_DIR / "phase2_complementnb.joblib",
         MODELS_DIR / "phase2_linearsvc.joblib",
         MODELS_DIR / "phase2_logisticregression.joblib",
     ]
