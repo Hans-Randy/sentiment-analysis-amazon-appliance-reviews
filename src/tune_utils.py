@@ -26,6 +26,7 @@ def load_phase2_splits() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def run_grid_search(
     model_name: str,
+    scoring: str = "f1_weighted",
 ) -> pd.DataFrame:
     ensure_directories([TABLES_DIR, METRICS_DIR])
     if model_name not in MODEL_SPECS:
@@ -36,7 +37,7 @@ def run_grid_search(
     search = GridSearchCV(
         estimator=model_spec.builder(),
         param_grid=model_spec.param_grid,
-        scoring="f1_weighted",
+        scoring=scoring,
         cv=StratifiedKFold(n_splits=3, shuffle=True, random_state=DEFAULT_RANDOM_STATE),
         n_jobs=None,
         refit=True,

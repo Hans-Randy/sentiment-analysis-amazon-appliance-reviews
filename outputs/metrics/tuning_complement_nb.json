@@ -1,0 +1,10 @@
+{
+  "model": "ComplementNB",
+  "best_score": 0.6254172493044307,
+  "best_params": {
+    "classifier__alpha": 0.5,
+    "classifier__norm": true,
+    "tfidf__max_features": 10000,
+    "tfidf__min_df": 1
+  }
+}

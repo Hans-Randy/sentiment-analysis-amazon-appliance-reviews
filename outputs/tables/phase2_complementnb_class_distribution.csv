@@ -1,0 +1,10 @@
+label,ComplementNB_pred,count
+Negative,Negative,2127
+Negative,Neutral,126
+Negative,Positive,152
+Neutral,Negative,394
+Neutral,Neutral,183
+Neutral,Positive,329
+Positive,Negative,884
+Positive,Neutral,574
+Positive,Positive,13231

@@ -4,7 +4,7 @@ from typing import Any, Callable
 from sklearn.decomposition import TruncatedSVD
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import ComplementNB
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Normalizer
@@ -57,11 +57,11 @@ def build_linear_svc_pipeline() -> Pipeline:
     )
 
 
-def build_multinomial_nb_pipeline() -> Pipeline:
+def build_complement_nb_pipeline() -> Pipeline:
     return Pipeline(
         steps=[
-            ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
-            ("classifier", MultinomialNB(alpha=0.1)),
+            ("tfidf", build_tfidf_vectorizer().set_params(min_df=1, max_features=10000)),
+            ("classifier", ComplementNB(alpha=0.5, norm=True)),
         ]
     )
 
@@ -129,13 +129,18 @@ MODEL_SPECS: dict[str, ModelSpec] = {
         builder=build_linear_svc_pipeline,
         param_grid={"tfidf__min_df": [1, 2], "classifier__C": [0.5, 1.0, 2.0]},
     ),
-    "multinomial_nb": ModelSpec(
-        cli_name="multinomial_nb",
-        display_name="MultinomialNB",
+    "complement_nb": ModelSpec(
+        cli_name="complement_nb",
+        display_name="ComplementNB",
         family="bayes",
         is_default=True,
-        builder=build_multinomial_nb_pipeline,
-        param_grid={"tfidf__min_df": [1, 2], "classifier__alpha": [0.1, 0.5, 1.0]},
+        builder=build_complement_nb_pipeline,
+        param_grid={
+            "tfidf__min_df": [1, 2],
+            "tfidf__max_features": [5000, 10000],
+            "classifier__alpha": [0.01, 0.05, 0.1, 0.5],
+            "classifier__norm": [True, False],
+        },
     ),
     "mlp": ModelSpec(
         cli_name="mlp",
