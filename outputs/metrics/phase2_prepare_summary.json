@@ -1,5 +1,5 @@
 {
-  "source_file": "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/raw/Appliances.json.gz",
+  "source_file": "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\raw\\Appliances.json.gz",
   "raw_rows_after_empty_text_filter": 602453,
   "prepared_rows": 591015,
   "duplicate_rows_removed": 11438,
@@ -29,13 +29,13 @@
   "comparison_subset_size_requested": null,
   "comparison_scope": "full_test_set",
   "saved_prepared_paths": [
-    "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/interim/amazon_appliances_large_reviews_prepared.csv",
-    "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/processed/amazon_appliances_large_reviews_labeled.csv"
+    "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\interim\\amazon_appliances_large_reviews_prepared.csv",
+    "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\processed\\amazon_appliances_large_reviews_labeled.csv"
   ],
   "saved_development_paths": [
-    "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/interim/amazon_appliances_large_phase2_development_sample_prepared.csv",
-    "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/processed/amazon_appliances_large_phase2_development_sample_labeled.csv"
+    "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\interim\\amazon_appliances_large_phase2_development_sample_prepared.csv",
+    "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\processed\\amazon_appliances_large_phase2_development_sample_labeled.csv"
   ],
-  "saved_comparison_subset_path": "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/outputs/predictions/phase2_lexicon_comparison_subset.csv",
+  "saved_comparison_subset_path": "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv",
   "skip_exploration": false
 }
