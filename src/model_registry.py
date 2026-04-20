@@ -42,17 +42,24 @@ def build_logistic_regression_pipeline() -> Pipeline:
 
 
 def build_linear_svc_pipeline() -> Pipeline:
+    tfidf = build_tfidf_vectorizer().set_params(
+        min_df=2,
+        max_df=0.95,
+        # max_features=26000,
+        max_features=22000,
+    )
+    classifier = LinearSVC(
+        # C=0.14,
+        C=0.12,
+        loss="squared_hinge",
+        dual=True,
+        class_weight="balanced",
+        random_state=DEFAULT_RANDOM_STATE,
+    )
     return Pipeline(
-        steps=[
-            ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
-            (
-                "classifier",
-                LinearSVC(
-                    C=0.5,
-                    class_weight="balanced",
-                    random_state=DEFAULT_RANDOM_STATE,
-                ),
-            ),
+        steps = [
+            ("tfidf", tfidf),
+            ("classifier", classifier)
         ]
     )
 
@@ -127,7 +134,18 @@ MODEL_SPECS: dict[str, ModelSpec] = {
         family="linear",
         is_default=True,
         builder=build_linear_svc_pipeline,
-        param_grid={"tfidf__min_df": [1, 2], "classifier__C": [0.5, 1.0, 2.0]},
+        param_grid = {
+            "classifier__loss": ["squared_hinge"],
+            "classifier__dual": [True],
+            "classifier__C": [0.08, 0.12, 0.14],
+            "classifier__class_weight": [
+                "balanced",
+                {"Negative": 1.0, "Neutral": 1.5, "Positive": 1.0},
+                {"Negative": 1.0, "Neutral": 2.0, "Positive": 1.0},
+            ],
+            "tfidf__max_features": [22000, 26000],
+            "tfidf__max_df": [0.95],
+        }  # Final Fine Tuning for addressing weaker performance on Neutral class by adding custom class weights, while keeping other parameters around their previously identified optimal values
     ),
     "complement_nb": ModelSpec(
         cli_name="complement_nb",

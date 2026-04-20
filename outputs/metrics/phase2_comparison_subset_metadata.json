@@ -1,5 +1,5 @@
 {
-  "source_file": "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/data/raw/Appliances.json.gz",
+  "source_file": "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\data\\raw\\Appliances.json.gz",
   "train_test_split": "70/30",
   "train_test_stratify_field": "overall",
   "random_state": 42,
@@ -25,5 +25,5 @@
     },
     "text_hash_sum": 3736137
   },
-  "subset_path": "/home/stfny/centennial/winter2026/sentiment-analysis-amazon-appliance-reviews/outputs/predictions/phase2_lexicon_comparison_subset.csv"
+  "subset_path": "C:\\DataA\\Dev\\College_Git\\GroupProject\\sentiment-analysis-amazon-appliance-reviews\\outputs\\predictions\\phase2_lexicon_comparison_subset.csv"
 }
