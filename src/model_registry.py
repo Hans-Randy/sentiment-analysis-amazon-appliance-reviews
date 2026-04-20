@@ -61,17 +61,6 @@ def build_linear_svc_pipeline() -> Pipeline:
             ("tfidf", tfidf),
             ("classifier", classifier)
         ]
-        # steps=[
-        #     ("tfidf", build_tfidf_vectorizer().set_params(min_df=2)),
-        #     (
-        #         "classifier",
-        #         LinearSVC(
-        #             C=0.5,
-        #             class_weight="balanced",
-        #             random_state=DEFAULT_RANDOM_STATE,
-        #         ),
-        #     ),
-        # ]
     )
 
 
@@ -145,28 +134,6 @@ MODEL_SPECS: dict[str, ModelSpec] = {
         family="linear",
         is_default=True,
         builder=build_linear_svc_pipeline,
-        # param_grid={"tfidf__min_df": [1, 2], "classifier__C": [0.5, 1.0, 2.0]}, # Original
-        # param_grid={"tfidf__min_df": [1, 2, 5], "classifier__C": [0.1, 0.5, 1.0, 2.0],"tfidf__max_features": [5000, 8000, 15000], }, # First Fine Tuning - Added max_features and more C values
-        # param_grid={
-        #         "classifier__loss": ["squared_hinge"],          # lock loss in Stage A
-        #         "classifier__C": [0.03, 0.05, 0.1],
-        #         "tfidf__max_features": [12000, 15000, 20000],
-        #         "tfidf__max_df": [0.9, 0.95],
-        #         } # Second Fine Tuning
-        # param_grid={
-        #     "classifier__loss": ["hinge", "squared_hinge"],
-        #     "classifier__dual": [True],
-        #     "classifier__C": [0.08, 0.1, 0.12, 0.15],
-        #     "tfidf__max_features": [18000, 20000, 22000],
-        #     "tfidf__max_df": [0.95],
-        # }  # Third Fine Tuning - Added dual and more C values, max_features
-        # param_grid = {
-        #     "classifier__loss": ["squared_hinge"],
-        #     "classifier__dual": [True],
-        #     "classifier__C": [0.10, 0.12, 0.14, 0.16],
-        #     "tfidf__max_features": [20000, 22000, 24000, 26000],
-        #     "tfidf__max_df": [0.95],
-        # } # Fourth Fine Tuning - Focused on C and max_features around the best values from previous tuning, locked dual and loss based on prior results
         param_grid = {
             "classifier__loss": ["squared_hinge"],
             "classifier__dual": [True],
@@ -179,7 +146,6 @@ MODEL_SPECS: dict[str, ModelSpec] = {
             "tfidf__max_features": [22000, 26000],
             "tfidf__max_df": [0.95],
         }  # Final Fine Tuning for addressing weaker performance on Neutral class by adding custom class weights, while keeping other parameters around their previously identified optimal values
-        # uv run python -c "from src.tune_utils import run_grid_search; run_grid_search('svm', scoring='f1_macro')"
     ),
     "complement_nb": ModelSpec(
         cli_name="complement_nb",
